@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#367C2B">
+<title>GLF Field Tag Capture</title>
+<style>
+  :root{
+    --green:#1f5130;        /* deep, muted GLF green — primary */
+    --green-dk:#163b23;
+    --green-tint:#eef2ee;   /* faint green wash for selected/preview */
+    --gold:#b8902e;         /* restrained brass accent, used as hairline only */
+    --ink:#1a1d1a;
+    --ink-soft:#4a514a;
+    --line:#d8ddd6;
+    --line-soft:#e8ebe6;
+    --bg:#f6f7f4;
+    --card:#ffffff;
+    --danger:#9b2c20;
+    --danger-bg:#f9efed;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:var(--bg);font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased}
+
+  header{background:var(--green);color:#fff;padding:20px 22px 18px;
+    border-bottom:1px solid var(--gold);position:sticky;top:0;z-index:5}
+  header .inner{max-width:620px;margin:0 auto;display:flex;align-items:baseline;gap:14px}
+  header .wordmark{font-size:15px;font-weight:700;letter-spacing:.22em;color:#fff;
+    border:1px solid rgba(255,255,255,.55);padding:5px 9px;line-height:1;flex:0 0 auto}
+  header h1{font-size:17px;margin:0;font-weight:600;letter-spacing:.01em}
+  header p{margin:2px 0 0;font-size:13px;color:#c6d6c9;font-weight:400}
+  header .htext{display:flex;flex-direction:column}
+
+  .wrap{max-width:620px;margin:0 auto;padding:22px 18px 90px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:4px;
+    padding:22px;margin-bottom:16px}
+
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-soft);margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid var(--line-soft)}
+
+  .stat{display:flex;align-items:baseline;gap:10px;margin-bottom:20px}
+  .stat b{font-size:30px;font-weight:700;line-height:1;color:var(--green);font-variant-numeric:tabular-nums}
+  .stat small{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+
+  .field{margin-bottom:18px}
+  label{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink-soft);margin:0 0 7px}
+  label .opt{font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-soft);opacity:.8}
+  select,input[type=text]{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:4px;
+    font-size:16px;font-family:inherit;color:var(--ink);background:#fff;appearance:none;-webkit-appearance:none}
+  select{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%234a514a' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+  select:focus,input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(31,81,48,.12)}
+
+  .photo-btn{display:block;width:100%;border:1px solid var(--green);border-radius:4px;background:#fff;
+    padding:14px;text-align:center;font-size:15px;font-weight:600;color:var(--green);cursor:pointer}
+  .photo-btn:active{background:var(--green-tint)}
+
+  .preview{position:relative;margin-top:14px;display:none;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+  .preview img{width:100%;display:block;max-height:360px;object-fit:cover}
+  .preview .clr{position:absolute;top:8px;right:8px;background:rgba(20,30,22,.78);color:#fff;border:none;
+    width:32px;height:32px;border-radius:4px;font-size:18px;cursor:pointer;line-height:1}
+
+  .submit{width:100%;margin-top:22px;padding:15px;border:none;border-radius:4px;background:var(--green);
+    color:#fff;font-size:16px;font-weight:600;letter-spacing:.02em;cursor:pointer}
+  .submit:disabled{background:#b9c2ba;cursor:not-allowed}
+  .submit:not(:disabled):active{background:var(--green-dk)}
+
+  .spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.5);
+    border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:8px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(8px);background:var(--green-dk);
+    color:#fff;padding:12px 20px;border-radius:4px;font-size:14px;font-weight:600;
+    box-shadow:0 8px 24px rgba(0,0,0,.18);z-index:30;opacity:0;transition:.22s;pointer-events:none;
+    max-width:92%;text-align:center}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.warn{background:var(--danger)}
+
+  .recent{display:flex;flex-wrap:wrap;gap:8px}
+  .recent .thumb{width:60px;height:60px;border-radius:4px;object-fit:cover;border:1px solid var(--line)}
+  .hint{font-size:14px;color:var(--ink-soft)}
+
+  .config-warn,.err{background:var(--danger-bg);border:1px solid var(--danger);color:var(--danger);
+    border-radius:4px;padding:12px 14px;font-size:13px;margin-bottom:16px;display:none;word-break:break-word}
+
+  @media(min-width:620px){
+    .wrap{padding-top:30px}
+    .card{padding:26px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .spin{animation:none}.toast{transition:none}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="inner">
+    <span class="wordmark">GLF</span>
+    <span class="htext">
+      <h1>Field Tag Capture</h1>
+      <p>Photograph the tag and send it in.</p>
+    </span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="config-warn" id="cfgWarn"></div>
+  <div class="err" id="err"></div>
+
+  <div class="card">
+    <div class="stat"><b id="cSent">0</b><small>sent this session</small></div>
+
+    <div class="field">
+      <label for="manager">Your name</label>
+      <select id="manager">
+        <option value="">Select your name</option>
+        <option>Oscar</option><option>Pablo</option><option>Armando</option>
+        <option>Gerardo</option><option>Amalia</option><option>Other</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="ranch">Ranch / Rancho</label>
+      <select id="ranch"><option value="">Select a ranch</option></select>
+    </div>
+
+    <div class="field">
+      <label for="tag">Field tag number <span class="opt">&mdash; optional</span></label>
+      <input type="text" id="tag" inputmode="numeric" placeholder="e.g. 88576" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <label>Tag photo</label>
+      <button class="photo-btn" id="pickBtn" type="button">Take or choose a photo</button>
+      <input type="file" id="photo" accept="image/*" capture="environment" hidden>
+      <div class="preview" id="preview"><button class="clr" id="clr" type="button">&times;</button><img id="pimg"></div>
+    </div>
+
+    <button class="submit" id="send" disabled>Send it in</button>
+  </div>
+
+  <div class="card">
+    <p class="eyebrow">Just sent</p>
+    <div class="recent" id="recent"><div class="hint">Nothing yet this session.</div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== Supabase config ===== */
+const SUPABASE_URL = "https://oxtqzjjtfmdddsvhfnqq.supabase.co";
+const SUPABASE_KEY = "sb_publishable_R2Dqfchy-zrJJ4htQQ_YOw_T7jMvOsh";
+const BUCKET = "field-tags";
+const TABLE = "field_tag_submissions";
+
+const RANCHES = [];
+for(let i=1;i<=27;i++) RANCHES.push("GLF"+i);
+
+const $ = s=>document.querySelector(s);
+let currentPhoto = null;
+let sentCount = 0;
+const recentThumbs = [];
+
+const ranchSel=$("#ranch");
+RANCHES.forEach(r=>{const o=document.createElement("option");o.textContent=r;ranchSel.appendChild(o)});
+
+if(SUPABASE_URL.includes("YOUR")||SUPABASE_KEY.includes("YOUR")){
+  const w=$("#cfgWarn");w.style.display="block";w.textContent="Not connected: Supabase URL/key still placeholder.";
+}
+
+$("#pickBtn").onclick=()=>$("#photo").click();
+$("#photo").onchange=async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const blob = await downscale(f, 1600, 0.82);
+  const dataUrl = await blobToDataUrl(blob);
+  currentPhoto={dataUrl,blob};
+  $("#pimg").src=dataUrl; $("#preview").style.display="block";
+  validate();
+};
+$("#clr").onclick=()=>{currentPhoto=null;$("#preview").style.display="none";$("#photo").value="";validate()};
+
+function downscale(file,maxDim,quality){
+  return new Promise((res)=>{
+    const img=new Image(); const url=URL.createObjectURL(file);
+    img.onload=()=>{
+      let w=img.width,h=img.height;
+      if(Math.max(w,h)>maxDim){const s=maxDim/Math.max(w,h);w=Math.round(w*s);h=Math.round(h*s);}
+      const c=document.createElement("canvas");c.width=w;c.height=h;
+      c.getContext("2d").drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(url);
+      c.toBlob(b=>res(b||file),"image/jpeg",quality);
+    };
+    img.onerror=()=>res(file); img.src=url;
+  });
+}
+function blobToDataUrl(b){return new Promise((r,j)=>{const f=new FileReader();f.onload=()=>r(f.result);f.onerror=j;f.readAsDataURL(b)})}
+
+function validate(){ $("#send").disabled = !($("#manager").value && $("#ranch").value && currentPhoto); }
+["manager","ranch"].forEach(id=>$("#"+id).onchange=validate);
+
+$("#send").onclick=async()=>{
+  if($("#send").disabled) return;
+  hideErr();
+  const btn=$("#send"); btn.disabled=true; btn.classList.add("sending");
+  btn.innerHTML='<span class="spin"></span>Sending&hellip;';
+  const rec={
+    id:"t"+Date.now()+"-"+Math.random().toString(36).slice(2,7),
+    manager:$("#manager").value, ranch:$("#ranch").value,
+    tag_number:$("#tag").value.trim()
+  };
+  try{
+    await uploadAndInsert(rec, currentPhoto.blob);
+    sentCount++; $("#cSent").textContent=sentCount;
+    recentThumbs.unshift(currentPhoto.dataUrl); renderRecent();
+    currentPhoto=null;$("#preview").style.display="none";$("#photo").value="";
+    $("#tag").value="";
+    toast("Sent \u2713");
+  }catch(err){
+    showErr(err.message||String(err));
+    toast("Send failed \u2014 see message above", true);
+  }finally{
+    btn.classList.remove("sending"); btn.innerHTML="Send it in"; validate();
+  }
+};
+
+async function uploadAndInsert(rec, blob){
+  const path = rec.ranch+"/"+rec.id+".jpg";
+  const up = await fetch(SUPABASE_URL+"/storage/v1/object/"+BUCKET+"/"+path,{
+    method:"POST",
+    headers:{ "Authorization":"Bearer "+SUPABASE_KEY, "apikey":SUPABASE_KEY, "Content-Type":"image/jpeg", "x-upsert":"true" },
+    body: blob
+  });
+  if(!up.ok) throw new Error("Image upload failed ("+up.status+"): "+(await up.text()));
+  const image_url = SUPABASE_URL+"/storage/v1/object/public/"+BUCKET+"/"+path;
+  const ins = await fetch(SUPABASE_URL+"/rest/v1/"+TABLE,{
+    method:"POST",
+    headers:{ "Authorization":"Bearer "+SUPABASE_KEY, "apikey":SUPABASE_KEY, "Content-Type":"application/json", "Prefer":"return=minimal" },
+    body: JSON.stringify({
+      manager:rec.manager, ranch:rec.ranch, tag_number:rec.tag_number, image_url
+    })
+  });
+  if(!ins.ok) throw new Error("Row save failed ("+ins.status+"): "+(await ins.text()));
+}
+
+function renderRecent(){
+  const el=$("#recent");
+  if(!recentThumbs.length){el.innerHTML='<div class="hint">Nothing yet this session.</div>';return;}
+  el.innerHTML="";
+  recentThumbs.slice(0,8).forEach(d=>{const i=document.createElement("img");i.className="thumb";i.src=d;el.appendChild(i)});
+}
+
+let tT;
+function toast(msg,warn){const t=$("#toast");t.textContent=msg;t.className="toast show"+(warn?" warn":"");clearTimeout(tT);tT=setTimeout(()=>t.className="toast",2800);}
+function showErr(m){const e=$("#err");e.style.display="block";e.textContent=m;}
+function hideErr(){$("#err").style.display="none";}
+</script>
+</body>
+</html>
