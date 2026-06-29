@@ -9,96 +9,63 @@
 <title>GLF Field Tag Capture</title>
 <style>
   :root{
-    --green:#1f5130;        /* deep, muted GLF green — primary */
-    --green-dk:#163b23;
-    --green-tint:#eef2ee;   /* faint green wash for selected/preview */
-    --gold:#b8902e;         /* restrained brass accent, used as hairline only */
-    --ink:#1a1d1a;
-    --ink-soft:#4a514a;
-    --line:#d8ddd6;
-    --line-soft:#e8ebe6;
-    --bg:#f6f7f4;
-    --card:#ffffff;
-    --danger:#9b2c20;
-    --danger-bg:#f9efed;
+    --green:#1f5130; --green-dk:#163b23; --green-tint:#eef2ee;
+    --gold:#b8902e; --ink:#1a1d1a; --ink-soft:#4a514a;
+    --line:#d8ddd6; --line-soft:#e8ebe6; --bg:#f6f7f4; --card:#fff;
+    --danger:#9b2c20; --danger-bg:#f9efed; --amber:#9a7b1f;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{-webkit-text-size-adjust:100%}
-  body{margin:0;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    color:var(--ink);background:var(--bg);font-size:16px;line-height:1.5;
-    -webkit-font-smoothing:antialiased}
-
-  header{background:var(--green);color:#fff;padding:20px 22px 18px;
-    border-bottom:1px solid var(--gold);position:sticky;top:0;z-index:5}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:var(--bg);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  header{background:var(--green);color:#fff;padding:20px 22px 18px;border-bottom:1px solid var(--gold);position:sticky;top:0;z-index:5}
   header .inner{max-width:620px;margin:0 auto;display:flex;align-items:baseline;gap:14px}
-  header .wordmark{font-size:15px;font-weight:700;letter-spacing:.22em;color:#fff;
-    border:1px solid rgba(255,255,255,.55);padding:5px 9px;line-height:1;flex:0 0 auto}
+  header .wordmark{font-size:15px;font-weight:700;letter-spacing:.22em;color:#fff;border:1px solid rgba(255,255,255,.55);padding:5px 9px;line-height:1;flex:0 0 auto}
   header h1{font-size:17px;margin:0;font-weight:600;letter-spacing:.01em}
   header p{margin:2px 0 0;font-size:13px;color:#c6d6c9;font-weight:400}
   header .htext{display:flex;flex-direction:column}
-
   .wrap{max-width:620px;margin:0 auto;padding:22px 18px 90px}
-
-  .card{background:var(--card);border:1px solid var(--line);border-radius:4px;
-    padding:22px;margin-bottom:16px}
-
-  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
-    color:var(--ink-soft);margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid var(--line-soft)}
-
+  .card{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:22px;margin-bottom:16px}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid var(--line-soft)}
   .stat{display:flex;align-items:baseline;gap:10px;margin-bottom:20px}
   .stat b{font-size:30px;font-weight:700;line-height:1;color:var(--green);font-variant-numeric:tabular-nums}
   .stat small{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
-
   .field{margin-bottom:18px}
-  label{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
-    color:var(--ink-soft);margin:0 0 7px}
+  label{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 7px}
   label .opt{font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-soft);opacity:.8}
-  select,input[type=text]{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:4px;
-    font-size:16px;font-family:inherit;color:var(--ink);background:#fff;appearance:none;-webkit-appearance:none}
-  select{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%234a514a' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
-    background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
-  select:focus,input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(31,81,48,.12)}
-
-  .photo-btn{display:block;width:100%;border:1px solid var(--green);border-radius:4px;background:#fff;
-    padding:14px;text-align:center;font-size:15px;font-weight:600;color:var(--green);cursor:pointer}
+  select{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:4px;font-size:16px;font-family:inherit;color:var(--ink);background:#fff;appearance:none;-webkit-appearance:none}
+  select{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%234a514a' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+  select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(31,81,48,.12)}
+  .photo-btn{display:block;width:100%;border:1px solid var(--green);border-radius:4px;background:#fff;padding:14px;text-align:center;font-size:15px;font-weight:600;color:var(--green);cursor:pointer}
   .photo-btn:active{background:var(--green-tint)}
+  .photo-btn .sub{display:block;font-size:12px;font-weight:400;color:var(--ink-soft);margin-top:4px}
 
-  .preview{position:relative;margin-top:14px;display:none;border:1px solid var(--line);border-radius:4px;overflow:hidden}
-  .preview img{width:100%;display:block;max-height:360px;object-fit:cover}
-  .preview .clr{position:absolute;top:8px;right:8px;background:rgba(20,30,22,.78);color:#fff;border:none;
-    width:32px;height:32px;border-radius:4px;font-size:18px;cursor:pointer;line-height:1}
-
-  .submit{width:100%;margin-top:22px;padding:15px;border:none;border-radius:4px;background:var(--green);
-    color:#fff;font-size:16px;font-weight:600;letter-spacing:.02em;cursor:pointer}
+  .files{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+  .fitem{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:4px;padding:8px;background:#fff;position:relative}
+  .fitem .thumb{width:46px;height:46px;border-radius:3px;object-fit:cover;background:var(--line-soft);flex:0 0 auto}
+  .fitem .pdf{width:46px;height:46px;border-radius:3px;background:var(--green-tint);color:var(--green-dk);font-size:9px;font-weight:700;letter-spacing:.06em;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .fitem .fmeta{flex:1;min-width:0;font-size:13px}
+  .fitem .fmeta .fn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+  .fitem .fmeta .fs{font-size:11px;color:var(--ink-soft);margin-top:2px}
+  .fitem .fst{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:3px;color:#fff;background:#9aa392;flex:0 0 auto}
+  .fst.queued{background:#9aa392}.fst.sending{background:var(--amber)}.fst.sent{background:var(--green)}.fst.err{background:var(--danger)}
+  .fitem .rm{background:none;border:none;color:var(--ink-soft);font-size:20px;line-height:1;cursor:pointer;padding:0 4px;flex:0 0 auto}
+  .miniSpin{display:inline-block;width:11px;height:11px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:sp .7s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .submit{width:100%;margin-top:22px;padding:15px;border:none;border-radius:4px;background:var(--green);color:#fff;font-size:16px;font-weight:600;letter-spacing:.02em;cursor:pointer}
   .submit:disabled{background:#b9c2ba;cursor:not-allowed}
   .submit:not(:disabled):active{background:var(--green-dk)}
-
-  .spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.5);
-    border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:8px}
-  @keyframes sp{to{transform:rotate(360deg)}}
-
-  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(8px);background:var(--green-dk);
-    color:#fff;padding:12px 20px;border-radius:4px;font-size:14px;font-weight:600;
-    box-shadow:0 8px 24px rgba(0,0,0,.18);z-index:30;opacity:0;transition:.22s;pointer-events:none;
-    max-width:92%;text-align:center}
+  .spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:8px}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(8px);background:var(--green-dk);color:#fff;padding:12px 20px;border-radius:4px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.18);z-index:30;opacity:0;transition:.22s;pointer-events:none;max-width:92%;text-align:center}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .toast.warn{background:var(--danger)}
-
   .recent{display:flex;flex-wrap:wrap;gap:8px}
   .recent .thumb{width:60px;height:60px;border-radius:4px;object-fit:cover;border:1px solid var(--line)}
+  .recent .pdf{width:60px;height:60px;border-radius:4px;background:var(--green-tint);color:var(--green-dk);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1px solid var(--line)}
   .hint{font-size:14px;color:var(--ink-soft)}
-
-  .config-warn,.err{background:var(--danger-bg);border:1px solid var(--danger);color:var(--danger);
-    border-radius:4px;padding:12px 14px;font-size:13px;margin-bottom:16px;display:none;word-break:break-word}
-
-  @media(min-width:620px){
-    .wrap{padding-top:30px}
-    .card{padding:26px}
-  }
-  @media(prefers-reduced-motion:reduce){
-    .spin{animation:none}.toast{transition:none}
-  }
+  .config-warn,.err{background:var(--danger-bg);border:1px solid var(--danger);color:var(--danger);border-radius:4px;padding:12px 14px;font-size:13px;margin-bottom:16px;display:none;word-break:break-word}
+  @media(min-width:620px){.wrap{padding-top:30px}.card{padding:26px}}
+  @media(prefers-reduced-motion:reduce){.spin,.miniSpin{animation:none}.toast{transition:none}}
 </style>
 </head>
 <body>
@@ -134,18 +101,13 @@
     </div>
 
     <div class="field">
-      <label for="tag">Field tag number <span class="opt">&mdash; optional</span></label>
-      <input type="text" id="tag" inputmode="numeric" placeholder="e.g. 88576" autocomplete="off">
-    </div>
-
-    <div class="field">
       <label>Tag photo</label>
-      <button class="photo-btn" id="pickBtn" type="button">Take or choose a photo</button>
-      <input type="file" id="photo" accept="image/png,image/jpeg,image/webp,image/heic,application/pdf" hidden>
-      <div class="preview" id="preview"><button class="clr" id="clr" type="button">&times;</button><img id="pimg"><div id="pdfNote" style="display:none;padding:22px 14px;text-align:center;font-size:14px;color:var(--ink-soft)">PDF attached &mdash; it will be read later.</div></div>
+      <button class="photo-btn" id="pickBtn" type="button">Add photo</button>
+      <input type="file" id="photo" accept="image/png,image/jpeg,image/webp,image/heic,application/pdf" multiple hidden>
+      <div class="files" id="files"></div>
     </div>
 
-    <button class="submit" id="send" disabled>Send it in</button>
+    <button class="submit" id="send" disabled>Send them in</button>
   </div>
 
   <div class="card">
@@ -161,15 +123,15 @@
 const SUPABASE_URL = "https://oxtqzjjtfmdddsvhfnqq.supabase.co";
 const SUPABASE_KEY = "sb_publishable_R2Dqfchy-zrJJ4htQQ_YOw_T7jMvOsh";
 const BUCKET = "field-tags";
-const TABLE = "field_tag_submissions";
+const TABLE  = "field_tag_submissions";
 
 const RANCHES = [];
 for(let i=1;i<=27;i++) RANCHES.push("GLF"+i);
 
 const $ = s=>document.querySelector(s);
-let currentPhoto = null;
+let queue = [];           // {id, file, blob, ext, mime, isPdf, dataUrl, name, size, status}
 let sentCount = 0;
-const recentThumbs = [];
+const recentItems = [];   // {dataUrl, isPdf}
 
 const ranchSel=$("#ranch");
 RANCHES.forEach(r=>{const o=document.createElement("option");o.textContent=r;ranchSel.appendChild(o)});
@@ -180,29 +142,28 @@ if(SUPABASE_URL.includes("YOUR")||SUPABASE_KEY.includes("YOUR")){
 
 $("#pickBtn").onclick=()=>$("#photo").click();
 $("#photo").onchange=async e=>{
-  const f=e.target.files[0]; if(!f) return;
   hideErr();
-  const isPdf = f.type==="application/pdf" || /\.pdf$/i.test(f.name);
-  if(isPdf){
-    // keep the PDF as-is; OCR happens later in the parser
-    const blob=f, dataUrl=await blobToDataUrl(blob);
-    currentPhoto={dataUrl,blob,ext:"pdf",mime:"application/pdf",isPdf:true};
-    $("#pimg").style.display="none";
-    $("#pdfNote").style.display="block";
-    $("#preview").style.display="block";
-  }else{
-    // try to load + re-encode any image type to a clean JPEG
-    const blob = await downscale(f, 1600, 0.82);
-    if(!blob){ showErr("That file isn\u2019t a photo we can read. Please take or choose a photo (JPG/PNG), or a PDF."); $("#photo").value=""; return; }
-    const dataUrl = await blobToDataUrl(blob);
-    currentPhoto={dataUrl,blob,ext:"jpg",mime:"image/jpeg",isPdf:false};
-    $("#pimg").src=dataUrl; $("#pimg").style.display="block";
-    $("#pdfNote").style.display="none";
-    $("#preview").style.display="block";
-  }
-  validate();
+  const files=[...e.target.files];
+  $("#photo").value="";                 // allow re-picking same file later
+  for(const f of files) await addFile(f);
+  renderFiles(); validate();
 };
-$("#clr").onclick=()=>{currentPhoto=null;$("#preview").style.display="none";$("#pimg").style.display="block";$("#pdfNote").style.display="none";$("#photo").value="";validate()};
+
+async function addFile(f){
+  const isPdf = f.type==="application/pdf" || /\.pdf$/i.test(f.name);
+  const item={id:"t"+Date.now()+"-"+Math.random().toString(36).slice(2,7),
+              name:f.name||(isPdf?"document.pdf":"photo.jpg"), status:"queued"};
+  if(isPdf){
+    item.blob=f; item.ext="pdf"; item.mime="application/pdf"; item.isPdf=true;
+    item.dataUrl=null; item.size=f.size;
+  }else{
+    const blob=await downscale(f,1600,0.82);
+    if(!blob){ showErr("Skipped a file that isn\u2019t a readable photo: "+(f.name||"")); return; }
+    item.blob=blob; item.ext="jpg"; item.mime="image/jpeg"; item.isPdf=false;
+    item.dataUrl=await blobToDataUrl(blob); item.size=blob.size;
+  }
+  queue.push(item);
+}
 
 function downscale(file,maxDim,quality){
   return new Promise((res)=>{
@@ -219,67 +180,95 @@ function downscale(file,maxDim,quality){
   });
 }
 function blobToDataUrl(b){return new Promise((r,j)=>{const f=new FileReader();f.onload=()=>r(f.result);f.onerror=j;f.readAsDataURL(b)})}
+function fmtSize(n){return n>=1048576?(n/1048576).toFixed(1)+" MB":Math.max(1,Math.round(n/1024))+" KB"}
 
-function validate(){ $("#send").disabled = !($("#manager").value && $("#ranch").value && currentPhoto); }
+function renderFiles(){
+  const el=$("#files"); el.innerHTML="";
+  queue.forEach(it=>{
+    const row=document.createElement("div"); row.className="fitem";
+    const thumb = it.isPdf
+      ? `<div class="pdf">PDF</div>`
+      : `<img class="thumb" src="${it.dataUrl}">`;
+    const stLabel = it.status==="sending"
+      ? `<span class="fst sending"><span class="miniSpin"></span></span>`
+      : `<span class="fst ${it.status}">${it.status}</span>`;
+    const rm = (it.status==="queued") ? `<button class="rm" data-id="${it.id}" title="Remove">&times;</button>` : "";
+    row.innerHTML = thumb +
+      `<div class="fmeta"><div class="fn">${esc(it.name)}</div><div class="fs">${fmtSize(it.size||0)}</div></div>` +
+      stLabel + rm;
+    el.appendChild(row);
+  });
+  el.querySelectorAll(".rm").forEach(b=>b.onclick=()=>{queue=queue.filter(x=>x.id!==b.dataset.id);renderFiles();validate();});
+}
+
+function validate(){
+  const hasQueued = queue.some(it=>it.status==="queued");
+  $("#send").disabled = !($("#manager").value && $("#ranch").value && hasQueued);
+}
 ["manager","ranch"].forEach(id=>$("#"+id).onchange=validate);
 
 $("#send").onclick=async()=>{
   if($("#send").disabled) return;
   hideErr();
+  const manager=$("#manager").value, ranch=$("#ranch").value;
   const btn=$("#send"); btn.disabled=true; btn.classList.add("sending");
-  btn.innerHTML='<span class="spin"></span>Sending&hellip;';
-  const rec={
-    id:"t"+Date.now()+"-"+Math.random().toString(36).slice(2,7),
-    manager:$("#manager").value, ranch:$("#ranch").value,
-    tag_number:$("#tag").value.trim()
-  };
-  try{
-    await uploadAndInsert(rec, currentPhoto.blob);
-    sentCount++; $("#cSent").textContent=sentCount;
-    recentThumbs.unshift(currentPhoto.dataUrl); renderRecent();
-    currentPhoto=null;$("#preview").style.display="none";$("#photo").value="";
-    $("#tag").value="";
-    toast("Sent \u2713");
-  }catch(err){
-    showErr(err.message||String(err));
-    toast("Send failed \u2014 see message above", true);
-  }finally{
-    btn.classList.remove("sending"); btn.innerHTML="Send it in"; validate();
+  const pending = queue.filter(it=>it.status==="queued");
+  let ok=0, fail=0;
+  for(let i=0;i<pending.length;i++){
+    const it=pending[i];
+    it.status="sending"; renderFiles();
+    btn.innerHTML=`<span class="spin"></span>Sending ${i+1} of ${pending.length}\u2026`;
+    try{
+      await uploadAndInsert(it, manager, ranch);
+      it.status="sent"; ok++;
+      sentCount++; $("#cSent").textContent=sentCount;
+      recentItems.unshift({dataUrl:it.dataUrl,isPdf:it.isPdf}); renderRecent();
+    }catch(err){
+      it.status="err"; fail++;
+      showErr((it.name||"A file")+": "+(err.message||String(err)));
+    }
+    renderFiles();
   }
+  // clear successfully sent items from the visible queue
+  queue = queue.filter(it=>it.status!=="sent");
+  renderFiles();
+  btn.classList.remove("sending"); btn.innerHTML="Send them in"; validate();
+  if(fail===0) toast(`Sent ${ok} ${ok===1?"tag":"tags"} \u2713`);
+  else toast(`${ok} sent, ${fail} failed \u2014 see message`, true);
 };
 
-async function uploadAndInsert(rec, blob){
-  const ext = (currentPhoto && currentPhoto.ext) || "jpg";
-  const mime = (currentPhoto && currentPhoto.mime) || "image/jpeg";
-  const path = rec.ranch+"/"+rec.id+"."+ext;
+async function uploadAndInsert(it, manager, ranch){
+  const path = ranch+"/"+it.id+"."+it.ext;
   const up = await fetch(SUPABASE_URL+"/storage/v1/object/"+BUCKET+"/"+path,{
     method:"POST",
-    headers:{ "Authorization":"Bearer "+SUPABASE_KEY, "apikey":SUPABASE_KEY, "Content-Type":mime, "x-upsert":"true" },
-    body: blob
+    headers:{ "Authorization":"Bearer "+SUPABASE_KEY, "apikey":SUPABASE_KEY, "Content-Type":it.mime, "x-upsert":"true" },
+    body: it.blob
   });
   if(!up.ok) throw new Error("Upload failed ("+up.status+"): "+(await up.text()));
   const image_url = SUPABASE_URL+"/storage/v1/object/public/"+BUCKET+"/"+path;
   const ins = await fetch(SUPABASE_URL+"/rest/v1/"+TABLE,{
     method:"POST",
     headers:{ "Authorization":"Bearer "+SUPABASE_KEY, "apikey":SUPABASE_KEY, "Content-Type":"application/json", "Prefer":"return=minimal" },
-    body: JSON.stringify({
-      manager:rec.manager, ranch:rec.ranch, tag_number:rec.tag_number, image_url
-    })
+    body: JSON.stringify({ manager, ranch, image_url })
   });
   if(!ins.ok) throw new Error("Row save failed ("+ins.status+"): "+(await ins.text()));
 }
 
 function renderRecent(){
   const el=$("#recent");
-  if(!recentThumbs.length){el.innerHTML='<div class="hint">Nothing yet this session.</div>';return;}
+  if(!recentItems.length){el.innerHTML='<div class="hint">Nothing yet this session.</div>';return;}
   el.innerHTML="";
-  recentThumbs.slice(0,8).forEach(d=>{const i=document.createElement("img");i.className="thumb";i.src=d;el.appendChild(i)});
+  recentItems.slice(0,12).forEach(r=>{
+    if(r.isPdf){const d=document.createElement("div");d.className="pdf";d.textContent="PDF";el.appendChild(d);}
+    else{const i=document.createElement("img");i.className="thumb";i.src=r.dataUrl;el.appendChild(i);}
+  });
 }
 
 let tT;
 function toast(msg,warn){const t=$("#toast");t.textContent=msg;t.className="toast show"+(warn?" warn":"");clearTimeout(tT);tT=setTimeout(()=>t.className="toast",2800);}
 function showErr(m){const e=$("#err");e.style.display="block";e.textContent=m;}
-function hideErr(){$("#err").style.display="none";}
+function hideErr(){$("#err").style.display="none";$("#err").textContent="";}
+function esc(s){return (s||"").toString().replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")}
 </script>
 </body>
 </html>
