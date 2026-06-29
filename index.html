@@ -141,8 +141,8 @@
     <div class="field">
       <label>Tag photo</label>
       <button class="photo-btn" id="pickBtn" type="button">Take or choose a photo</button>
-      <input type="file" id="photo" accept="image/*" capture="environment" hidden>
-      <div class="preview" id="preview"><button class="clr" id="clr" type="button">&times;</button><img id="pimg"></div>
+      <input type="file" id="photo" accept="image/png,image/jpeg,image/webp,image/heic,application/pdf" hidden>
+      <div class="preview" id="preview"><button class="clr" id="clr" type="button">&times;</button><img id="pimg"><div id="pdfNote" style="display:none;padding:22px 14px;text-align:center;font-size:14px;color:var(--ink-soft)">PDF attached &mdash; it will be read later.</div></div>
     </div>
 
     <button class="submit" id="send" disabled>Send it in</button>
@@ -181,13 +181,28 @@ if(SUPABASE_URL.includes("YOUR")||SUPABASE_KEY.includes("YOUR")){
 $("#pickBtn").onclick=()=>$("#photo").click();
 $("#photo").onchange=async e=>{
   const f=e.target.files[0]; if(!f) return;
-  const blob = await downscale(f, 1600, 0.82);
-  const dataUrl = await blobToDataUrl(blob);
-  currentPhoto={dataUrl,blob};
-  $("#pimg").src=dataUrl; $("#preview").style.display="block";
+  hideErr();
+  const isPdf = f.type==="application/pdf" || /\.pdf$/i.test(f.name);
+  if(isPdf){
+    // keep the PDF as-is; OCR happens later in the parser
+    const blob=f, dataUrl=await blobToDataUrl(blob);
+    currentPhoto={dataUrl,blob,ext:"pdf",mime:"application/pdf",isPdf:true};
+    $("#pimg").style.display="none";
+    $("#pdfNote").style.display="block";
+    $("#preview").style.display="block";
+  }else{
+    // try to load + re-encode any image type to a clean JPEG
+    const blob = await downscale(f, 1600, 0.82);
+    if(!blob){ showErr("That file isn\u2019t a photo we can read. Please take or choose a photo (JPG/PNG), or a PDF."); $("#photo").value=""; return; }
+    const dataUrl = await blobToDataUrl(blob);
+    currentPhoto={dataUrl,blob,ext:"jpg",mime:"image/jpeg",isPdf:false};
+    $("#pimg").src=dataUrl; $("#pimg").style.display="block";
+    $("#pdfNote").style.display="none";
+    $("#preview").style.display="block";
+  }
   validate();
 };
-$("#clr").onclick=()=>{currentPhoto=null;$("#preview").style.display="none";$("#photo").value="";validate()};
+$("#clr").onclick=()=>{currentPhoto=null;$("#preview").style.display="none";$("#pimg").style.display="block";$("#pdfNote").style.display="none";$("#photo").value="";validate()};
 
 function downscale(file,maxDim,quality){
   return new Promise((res)=>{
@@ -198,9 +213,9 @@ function downscale(file,maxDim,quality){
       const c=document.createElement("canvas");c.width=w;c.height=h;
       c.getContext("2d").drawImage(img,0,0,w,h);
       URL.revokeObjectURL(url);
-      c.toBlob(b=>res(b||file),"image/jpeg",quality);
+      c.toBlob(b=>res(b||null),"image/jpeg",quality);
     };
-    img.onerror=()=>res(file); img.src=url;
+    img.onerror=()=>{URL.revokeObjectURL(url);res(null);}; img.src=url;
   });
 }
 function blobToDataUrl(b){return new Promise((r,j)=>{const f=new FileReader();f.onload=()=>r(f.result);f.onerror=j;f.readAsDataURL(b)})}
@@ -234,13 +249,15 @@ $("#send").onclick=async()=>{
 };
 
 async function uploadAndInsert(rec, blob){
-  const path = rec.ranch+"/"+rec.id+".jpg";
+  const ext = (currentPhoto && currentPhoto.ext) || "jpg";
+  const mime = (currentPhoto && currentPhoto.mime) || "image/jpeg";
+  const path = rec.ranch+"/"+rec.id+"."+ext;
   const up = await fetch(SUPABASE_URL+"/storage/v1/object/"+BUCKET+"/"+path,{
     method:"POST",
-    headers:{ "Authorization":"Bearer "+SUPABASE_KEY, "apikey":SUPABASE_KEY, "Content-Type":"image/jpeg", "x-upsert":"true" },
+    headers:{ "Authorization":"Bearer "+SUPABASE_KEY, "apikey":SUPABASE_KEY, "Content-Type":mime, "x-upsert":"true" },
     body: blob
   });
-  if(!up.ok) throw new Error("Image upload failed ("+up.status+"): "+(await up.text()));
+  if(!up.ok) throw new Error("Upload failed ("+up.status+"): "+(await up.text()));
   const image_url = SUPABASE_URL+"/storage/v1/object/public/"+BUCKET+"/"+path;
   const ins = await fetch(SUPABASE_URL+"/rest/v1/"+TABLE,{
     method:"POST",
