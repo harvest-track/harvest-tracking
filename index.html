@@ -9,66 +9,81 @@
 <title>GLF Field Tag Capture</title>
 <style>
   :root{
-    --green:#1f5130; --green-dk:#163b23; --green-tint:#eef2ee;
-    --gold:#b8902e; --ink:#1a1d1a; --ink-soft:#4a514a;
-    --line:#d8ddd6; --line-soft:#e8ebe6; --bg:#f6f7f4; --card:#fff;
+    --green:#1f5130; --green-dk:#163b23; --green-tint:#edf3ec;
+    --gold:#b8902e; --gold-dk:#8a671b; --ink:#141712; --ink-soft:#3f463d;
+    --line:#c8cfc4; --line-soft:#e2e6de; --bg:#f4f5f1; --card:#fff;
     --danger:#9b2c20; --danger-bg:#f9efed; --amber:#9a7b1f;
+    --r:12px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{-webkit-text-size-adjust:100%}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     color:var(--ink);background:var(--bg);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
-  header{background:var(--green);color:#fff;padding:20px 22px 18px;border-bottom:1px solid var(--gold);position:sticky;top:0;z-index:5}
-  header .inner{max-width:620px;margin:0 auto;display:flex;align-items:baseline;gap:14px}
-  header .wordmark{font-size:15px;font-weight:700;letter-spacing:.22em;color:#fff;border:1px solid rgba(255,255,255,.55);padding:5px 9px;line-height:1;flex:0 0 auto}
-  header h1{font-size:17px;margin:0;font-weight:600;letter-spacing:.01em}
-  header p{margin:2px 0 0;font-size:13px;color:#c6d6c9;font-weight:400}
-  header .htext{display:flex;flex-direction:column}
-  header .inner{align-items:center}
-  #langBtn{margin-left:auto;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.6);border-radius:4px;padding:7px 12px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;flex:0 0 auto}
-  #langBtn:active{background:rgba(255,255,255,.12)}
-  .wrap{max-width:620px;margin:0 auto;padding:22px 18px 90px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:22px;margin-bottom:16px}
-  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid var(--line-soft)}
-  .stat{display:flex;align-items:baseline;gap:10px;margin-bottom:20px}
-  .stat b{font-size:30px;font-weight:700;line-height:1;color:var(--green);font-variant-numeric:tabular-nums}
-  .stat small{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
-  .field{margin-bottom:18px}
-  label{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 7px}
-  label .opt{font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-soft);opacity:.8}
-  select{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:4px;font-size:16px;font-family:inherit;color:var(--ink);background:#fff;appearance:none;-webkit-appearance:none}
-  select{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%234a514a' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
-  select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(31,81,48,.12)}
-  .photo-btn{display:block;width:100%;border:1px solid var(--green);border-radius:4px;background:#fff;padding:14px;text-align:center;font-size:15px;font-weight:600;color:var(--green);cursor:pointer}
-  .photo-btn:active{background:var(--green-tint)}
-  .photo-btn .sub{display:block;font-size:12px;font-weight:400;color:var(--ink-soft);margin-top:4px}
+  header{background:var(--green);color:#fff;padding:18px 20px;border-bottom:3px solid var(--gold);position:sticky;top:0;z-index:5}
+  header .inner{max-width:620px;margin:0 auto;display:flex;align-items:center;gap:14px}
+  header .wordmark{font-size:15px;font-weight:700;letter-spacing:.22em;color:#fff;border:1.5px solid rgba(255,255,255,.6);border-radius:8px;padding:6px 8px 6px 11px;line-height:1;flex:0 0 auto}
+  header h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.01em}
+  header p{margin:2px 0 0;font-size:13px;color:#cfdcd1;font-weight:400}
+  header .htext{display:flex;flex-direction:column;min-width:0}
+  #langBtn{margin-left:auto;background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.65);border-radius:10px;padding:8px 13px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;flex:0 0 auto;min-height:40px}
+  #langBtn:active{background:rgba(255,255,255,.14)}
+  .wrap{max-width:620px;margin:0 auto;padding:22px 16px 90px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px 20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(20,23,18,.05)}
+  .eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid var(--line-soft)}
+  .stat{display:flex;align-items:baseline;gap:10px;margin-bottom:22px}
+  .stat b{font-size:34px;font-weight:800;line-height:1;color:var(--gold-dk);font-variant-numeric:tabular-nums}
+  .stat small{font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+  @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.28)}100%{transform:scale(1)}}
+  .stat b.pop{display:inline-block;animation:pop .35s ease}
+  .field{margin-bottom:20px}
+  label{display:block;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 8px}
+  label .opt{font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-soft);opacity:.85}
+  select{width:100%;min-height:50px;padding:13px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:16px;font-family:inherit;color:var(--ink);background:#fff;appearance:none;-webkit-appearance:none}
+  select{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%233f463d' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+  select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(31,81,48,.16)}
+  select:disabled{background-color:#f0f2ec;color:var(--ink-soft)}
+  .photo-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;min-height:104px;border:2px dashed var(--green);border-radius:var(--r);background:var(--green-tint);padding:18px 14px;text-align:center;font-size:16px;font-weight:700;color:var(--green);cursor:pointer;font-family:inherit}
+  .photo-btn:active{background:#dde8db}
+  .photo-btn svg{width:28px;height:28px;flex:0 0 auto}
+  .photo-btn .sub{display:block;font-size:12.5px;font-weight:500;color:var(--ink-soft)}
+
+  /* Harvest-tag shape: notched end + punched hole */
+  .tag{position:relative;display:block;flex:0 0 auto;width:64px;height:50px;background:var(--line-soft);box-shadow:inset 0 0 0 1px rgba(20,23,18,.14);
+    clip-path:polygon(0 50%,14px 0,100% 0,100% 100%,14px 100%);
+    -webkit-mask:radial-gradient(circle 4.5px at 10px 50%,transparent 4.5px,#000 5px);
+            mask:radial-gradient(circle 4.5px at 10px 50%,transparent 4.5px,#000 5px)}
+  .tag img{width:100%;height:100%;object-fit:cover;display:block}
+  .tag.pdf{display:flex;align-items:center;justify-content:center;background:var(--green-tint);color:var(--green-dk);font-size:9px;font-weight:800;letter-spacing:.08em;padding-left:8px}
+  .tag.sm{width:56px;height:44px}
+  @keyframes tagIn{from{opacity:0;transform:translateY(-10px) rotate(-4deg)}to{opacity:1;transform:none}}
+  .tag.enter{animation:tagIn .4s cubic-bezier(.2,.8,.3,1)}
 
   .files{margin-top:14px;display:flex;flex-direction:column;gap:8px}
-  .fitem{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:4px;padding:8px;background:#fff;position:relative}
-  .fitem .thumb{width:46px;height:46px;border-radius:3px;object-fit:cover;background:var(--line-soft);flex:0 0 auto}
-  .fitem .pdf{width:46px;height:46px;border-radius:3px;background:var(--green-tint);color:var(--green-dk);font-size:9px;font-weight:700;letter-spacing:.06em;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .fitem{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:#fff;position:relative}
   .fitem .fmeta{flex:1;min-width:0;font-size:13px}
-  .fitem .fmeta .fn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
-  .fitem .fmeta .fs{font-size:11px;color:var(--ink-soft);margin-top:2px}
-  .fitem .fst{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:3px;color:#fff;background:#9aa392;flex:0 0 auto}
-  .fst.queued{background:#9aa392}.fst.sending{background:var(--amber)}.fst.sent{background:var(--green)}.fst.err{background:var(--danger)}
-  .fitem .rm{background:none;border:none;color:var(--ink-soft);font-size:20px;line-height:1;cursor:pointer;padding:0 4px;flex:0 0 auto}
+  .fitem .fmeta .fn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);font-weight:500}
+  .fitem .fmeta .fs{font-size:11.5px;color:var(--ink-soft);margin-top:2px}
+  .fitem .fst{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;border-radius:999px;color:#fff;background:#8b957f;flex:0 0 auto}
+  .fst.queued{background:#8b957f}.fst.sending{background:var(--amber)}.fst.sent{background:var(--green)}.fst.err{background:var(--danger)}
+  .fitem .rm{background:none;border:none;color:var(--ink-soft);font-size:22px;line-height:1;cursor:pointer;padding:2px 6px;flex:0 0 auto}
   .miniSpin{display:inline-block;width:11px;height:11px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:sp .7s linear infinite}
   @keyframes sp{to{transform:rotate(360deg)}}
-  .submit{width:100%;margin-top:22px;padding:15px;border:none;border-radius:4px;background:var(--green);color:#fff;font-size:16px;font-weight:600;letter-spacing:.02em;cursor:pointer}
-  .submit:disabled{background:#b9c2ba;cursor:not-allowed}
+  .submit{width:100%;margin-top:22px;padding:16px;border:none;border-radius:var(--r);background:var(--green);color:#fff;font-size:17px;font-weight:700;letter-spacing:.02em;cursor:pointer;box-shadow:0 2px 6px rgba(22,59,35,.22)}
+  .submit:disabled{background:#b3bdb1;box-shadow:none;cursor:not-allowed}
   .submit:not(:disabled):active{background:var(--green-dk)}
   .spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:8px}
-  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(8px);background:var(--green-dk);color:#fff;padding:12px 20px;border-radius:4px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.18);z-index:30;opacity:0;transition:.22s;pointer-events:none;max-width:92%;text-align:center}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(8px);background:var(--green-dk);color:#fff;padding:13px 20px;border-radius:var(--r);font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:30;opacity:0;transition:.22s;pointer-events:none;max-width:92%;text-align:center}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .toast.warn{background:var(--danger)}
-  .recent{display:flex;flex-wrap:wrap;gap:8px}
-  .recent .thumb{width:60px;height:60px;border-radius:4px;object-fit:cover;border:1px solid var(--line)}
-  .recent .pdf{width:60px;height:60px;border-radius:4px;background:var(--green-tint);color:var(--green-dk);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1px solid var(--line)}
-  .hint{font-size:14px;color:var(--ink-soft)}
-  .config-warn,.err{background:var(--danger-bg);border:1px solid var(--danger);color:var(--danger);border-radius:4px;padding:12px 14px;font-size:13px;margin-bottom:16px;display:none;word-break:break-word}
+  .recent{display:flex;flex-wrap:wrap;gap:10px}
+  .hint{font-size:14px;color:var(--ink-soft);display:flex;align-items:center;gap:12px}
+  .hint .ghost{width:56px;height:44px;background:var(--line-soft);
+    clip-path:polygon(0 50%,14px 0,100% 0,100% 100%,14px 100%);
+    -webkit-mask:radial-gradient(circle 4.5px at 10px 50%,transparent 4.5px,#000 5px);
+            mask:radial-gradient(circle 4.5px at 10px 50%,transparent 4.5px,#000 5px)}
+  .config-warn,.err{background:var(--danger-bg);border:1.5px solid var(--danger);color:var(--danger);border-radius:10px;padding:12px 14px;font-size:13.5px;margin-bottom:16px;display:none;word-break:break-word}
   @media(min-width:620px){.wrap{padding-top:30px}.card{padding:26px}}
-  @media(prefers-reduced-motion:reduce){.spin,.miniSpin{animation:none}.toast{transition:none}}
+  @media(prefers-reduced-motion:reduce){.spin,.miniSpin,.stat b.pop,.tag.enter{animation:none}.toast{transition:none}}
 </style>
 </head>
 <body>
@@ -102,7 +117,11 @@
 
     <div class="field">
       <label id="lblPhoto">Tag photo</label>
-      <button class="photo-btn" id="pickBtn" type="button">Add photo</button>
+      <button class="photo-btn" id="pickBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span id="pickLabel">Add photo</span>
+        <span class="sub" id="pickSub">Photos or PDFs</span>
+      </button>
       <input type="file" id="photo" accept="image/png,image/jpeg,image/webp,image/heic,application/pdf" multiple hidden>
       <div class="files" id="files"></div>
     </div>
@@ -112,7 +131,7 @@
 
   <div class="card">
     <p class="eyebrow">Just sent</p>
-    <div class="recent" id="recent"><div class="hint">Nothing yet this session.</div></div>
+    <div class="recent" id="recent"><div class="hint"><span class="ghost"></span>Nothing yet this session.</div></div>
   </div>
 </div>
 
@@ -141,12 +160,12 @@ const ALL_ACTIVE = ["GLF1","GLF3","GLF4","GLF5","GLF6","GLF7","GLF8","GLF9","GLF
 const I18N = {
   en:{title:"Field Tag Capture",sub:"Photograph the tag and send it in.",
       name:"Farm manager name",selName:"Select farm manager",ranch:"Ranch / Rancho",selRanch:"Select a ranch",
-      photo:"Tag photo",add:"Add photo",sent:"sent this session",send:"Send it in",
+      photo:"Tag photo",add:"Add photo",addSub:"Photos or PDFs",sent:"sent this session",send:"Send it in",
       justSent:"Just sent",nothing:"Nothing yet this session.",other:"Other",lang:"Español",
       sending:"Sending",ok:"Sent",fail:"failed — see message",pickName:"Pick your name first"},
   es:{title:"Registro de Etiquetas",sub:"Tome una foto de la etiqueta y envíela.",
       name:"Nombre del jefe de rancho",selName:"Seleccione el jefe de rancho",ranch:"Rancho",selRanch:"Seleccione un rancho",
-      photo:"Foto de la etiqueta",add:"Agregar foto",sent:"enviadas en esta sesión",send:"Enviar",
+      photo:"Foto de la etiqueta",add:"Agregar foto",addSub:"Fotos o PDF",sent:"enviadas en esta sesión",send:"Enviar",
       justSent:"Recién enviadas",nothing:"Nada aún en esta sesión.",other:"Otro",lang:"English",
       sending:"Enviando",ok:"Enviado",fail:"fallaron — vea el mensaje",pickName:"Seleccione su nombre primero"}
 };
@@ -193,11 +212,12 @@ function applyLang(){
   $("#langBtn").textContent=t("lang");
   // photo label + button + stat + submit + recent heading
   if($("#lblPhoto")) $("#lblPhoto").textContent=t("photo");
-  $("#pickBtn").textContent=t("add");
+  $("#pickLabel").textContent=t("add");
+  $("#pickSub").textContent=t("addSub");
   $("#cSent").nextElementSibling.textContent=t("sent");
   if(!$("#send").classList.contains("sending")) $("#send").textContent=t("send");
   $(".eyebrow").textContent=t("justSent");
-  if(!recentItems.length){$("#recent").innerHTML='<div class="hint">'+t("nothing")+'</div>';}
+  if(!recentItems.length){$("#recent").innerHTML='<div class="hint"><span class="ghost"></span>'+t("nothing")+'</div>';}
   fillManagers(); fillRanches();
 }
 
@@ -257,8 +277,8 @@ function renderFiles(){
   queue.forEach(it=>{
     const row=document.createElement("div"); row.className="fitem";
     const thumb = it.isPdf
-      ? `<div class="pdf">PDF</div>`
-      : `<img class="thumb" src="${it.dataUrl}">`;
+      ? `<span class="tag sm pdf">PDF</span>`
+      : `<span class="tag sm"><img src="${it.dataUrl}" alt=""></span>`;
     const stLabel = it.status==="sending"
       ? `<span class="fst sending"><span class="miniSpin"></span></span>`
       : `<span class="fst ${it.status}">${it.status}</span>`;
@@ -291,8 +311,10 @@ $("#send").onclick=async()=>{
     try{
       await uploadAndInsert(it, manager, ranch);
       it.status="sent"; ok++;
-      sentCount++; $("#cSent").textContent=sentCount;
-      recentItems.unshift({dataUrl:it.dataUrl,isPdf:it.isPdf}); renderRecent();
+      sentCount++;
+      const c=$("#cSent"); c.textContent=sentCount;
+      c.classList.remove("pop"); void c.offsetWidth; c.classList.add("pop");
+      recentItems.unshift({dataUrl:it.dataUrl,isPdf:it.isPdf}); renderRecent(true);
     }catch(err){
       it.status="err"; fail++;
       showErr((it.name||"A file")+": "+(err.message||String(err)));
@@ -324,13 +346,17 @@ async function uploadAndInsert(it, manager, ranch){
   if(!ins.ok) throw new Error("Row save failed ("+ins.status+"): "+(await ins.text()));
 }
 
-function renderRecent(){
+function renderRecent(animateFirst){
   const el=$("#recent");
-  if(!recentItems.length){el.innerHTML='<div class="hint">Nothing yet this session.</div>';return;}
+  if(!recentItems.length){el.innerHTML='<div class="hint"><span class="ghost"></span>'+t("nothing")+'</div>';return;}
   el.innerHTML="";
-  recentItems.slice(0,12).forEach(r=>{
-    if(r.isPdf){const d=document.createElement("div");d.className="pdf";d.textContent="PDF";el.appendChild(d);}
-    else{const i=document.createElement("img");i.className="thumb";i.src=r.dataUrl;el.appendChild(i);}
+  recentItems.slice(0,12).forEach((r,idx)=>{
+    const d=document.createElement("div");
+    d.className="tag"+(r.isPdf?" pdf":"");
+    if(r.isPdf){d.textContent="PDF";}
+    else{const i=document.createElement("img");i.src=r.dataUrl;i.alt="";d.appendChild(i);}
+    if(animateFirst && idx===0) d.classList.add("enter");
+    el.appendChild(d);
   });
 }
 
