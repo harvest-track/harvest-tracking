@@ -24,6 +24,9 @@
   header h1{font-size:17px;margin:0;font-weight:600;letter-spacing:.01em}
   header p{margin:2px 0 0;font-size:13px;color:#c6d6c9;font-weight:400}
   header .htext{display:flex;flex-direction:column}
+  header .inner{align-items:center}
+  #langBtn{margin-left:auto;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.6);border-radius:4px;padding:7px 12px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;flex:0 0 auto}
+  #langBtn:active{background:rgba(255,255,255,.12)}
   .wrap{max-width:620px;margin:0 auto;padding:22px 18px 90px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:22px;margin-bottom:16px}
   .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid var(--line-soft)}
@@ -73,9 +76,10 @@
   <div class="inner">
     <span class="wordmark">GLF</span>
     <span class="htext">
-      <h1>Field Tag Capture</h1>
-      <p>Photograph the tag and send it in.</p>
+      <h1 id="hTitle">Field Tag Capture</h1>
+      <p id="hSub">Photograph the tag and send it in.</p>
     </span>
+    <button id="langBtn" type="button">Español</button>
   </div>
 </header>
 
@@ -87,27 +91,23 @@
     <div class="stat"><b id="cSent">0</b><small>sent this session</small></div>
 
     <div class="field">
-      <label for="manager">Your name</label>
-      <select id="manager">
-        <option value="">Select your name</option>
-        <option>Oscar</option><option>Pablo</option><option>Armando</option>
-        <option>Gerardo</option><option>Amalia</option><option>Other</option>
-      </select>
+      <label for="manager" id="lblManager">Farm manager name</label>
+      <select id="manager"><option value="">Select your name</option></select>
     </div>
 
     <div class="field">
-      <label for="ranch">Ranch / Rancho</label>
+      <label for="ranch" id="lblRanch">Ranch / Rancho</label>
       <select id="ranch"><option value="">Select a ranch</option></select>
     </div>
 
     <div class="field">
-      <label>Tag photo</label>
+      <label id="lblPhoto">Tag photo</label>
       <button class="photo-btn" id="pickBtn" type="button">Add photo</button>
       <input type="file" id="photo" accept="image/png,image/jpeg,image/webp,image/heic,application/pdf" multiple hidden>
       <div class="files" id="files"></div>
     </div>
 
-    <button class="submit" id="send" disabled>Send them in</button>
+    <button class="submit" id="send" disabled>Send it in</button>
   </div>
 
   <div class="card">
@@ -125,16 +125,86 @@ const SUPABASE_KEY = "sb_publishable_R2Dqfchy-zrJJ4htQQ_YOw_T7jMvOsh";
 const BUCKET = "field-tags";
 const TABLE  = "field_tag_submissions";
 
-const RANCHES = [];
-for(let i=1;i<=27;i++) RANCHES.push("GLF"+i);
+// Farm managers and the active (>0 yield 2026) ranches each is responsible for.
+const FM_RANCHES = {
+  "Oscar":   ["GLF1","GLF5","GLF6","GLF17","GLF18"],
+  "Pablo":   ["GLF3","GLF4","GLF10"],
+  "Amalia":  ["GLF11","GLF13","GLF14","GLF16","GLF20","GLF22"],
+  "Gerardo": ["GLF19","GLF24","GLF25","GLF26"],
+  "Armando": ["GLF7","GLF23","GLF27"],
+  "Ramon":   ["GLF8"],
+  "Dave":    ["GLF9"]
+};
+// All active ranches (used for the "Other" catch-all).
+const ALL_ACTIVE = ["GLF1","GLF3","GLF4","GLF5","GLF6","GLF7","GLF8","GLF9","GLF10","GLF11","GLF13","GLF14","GLF16","GLF17","GLF18","GLF19","GLF20","GLF22","GLF23","GLF24","GLF25","GLF26","GLF27"];
+
+const I18N = {
+  en:{title:"Field Tag Capture",sub:"Photograph the tag and send it in.",
+      name:"Farm manager name",selName:"Select farm manager",ranch:"Ranch / Rancho",selRanch:"Select a ranch",
+      photo:"Tag photo",add:"Add photo",sent:"sent this session",send:"Send it in",
+      justSent:"Just sent",nothing:"Nothing yet this session.",other:"Other",lang:"Español",
+      sending:"Sending",ok:"Sent",fail:"failed — see message",pickName:"Pick your name first"},
+  es:{title:"Registro de Etiquetas",sub:"Tome una foto de la etiqueta y envíela.",
+      name:"Nombre del jefe de rancho",selName:"Seleccione el jefe de rancho",ranch:"Rancho",selRanch:"Seleccione un rancho",
+      photo:"Foto de la etiqueta",add:"Agregar foto",sent:"enviadas en esta sesión",send:"Enviar",
+      justSent:"Recién enviadas",nothing:"Nada aún en esta sesión.",other:"Otro",lang:"English",
+      sending:"Enviando",ok:"Enviado",fail:"fallaron — vea el mensaje",pickName:"Seleccione su nombre primero"}
+};
+let LANG = "en";
 
 const $ = s=>document.querySelector(s);
 let queue = [];           // {id, file, blob, ext, mime, isPdf, dataUrl, name, size, status}
 let sentCount = 0;
 const recentItems = [];   // {dataUrl, isPdf}
 
+const managerSel=$("#manager");
 const ranchSel=$("#ranch");
-RANCHES.forEach(r=>{const o=document.createElement("option");o.textContent=r;ranchSel.appendChild(o)});
+
+function t(k){return I18N[LANG][k];}
+
+function fillManagers(){
+  const cur=managerSel.value;
+  managerSel.innerHTML="";
+  const first=document.createElement("option");first.value="";first.textContent=t("selName");managerSel.appendChild(first);
+  Object.keys(FM_RANCHES).forEach(name=>{const o=document.createElement("option");o.textContent=name;managerSel.appendChild(o);});
+  const other=document.createElement("option");other.value="Other";other.textContent=t("other");managerSel.appendChild(other);
+  if(cur) managerSel.value=cur;
+}
+
+function fillRanches(){
+  const mgr=managerSel.value;
+  const cur=ranchSel.value;
+  ranchSel.innerHTML="";
+  const first=document.createElement("option");first.value="";
+  first.textContent = mgr ? t("selRanch") : t("pickName");
+  ranchSel.appendChild(first);
+  const list = (mgr && FM_RANCHES[mgr]) ? FM_RANCHES[mgr] : (mgr==="Other" ? ALL_ACTIVE : []);
+  list.forEach(r=>{const o=document.createElement("option");o.textContent=r;ranchSel.appendChild(o);});
+  if(cur && list.includes(cur)) ranchSel.value=cur;
+  ranchSel.disabled = !mgr;
+}
+
+function applyLang(){
+  document.documentElement.lang = LANG;
+  $("#hTitle").textContent=t("title");
+  $("#hSub").textContent=t("sub");
+  $("#lblManager").textContent=t("name");
+  $("#lblRanch").textContent=t("ranch");
+  $("#langBtn").textContent=t("lang");
+  // photo label + button + stat + submit + recent heading
+  if($("#lblPhoto")) $("#lblPhoto").textContent=t("photo");
+  $("#pickBtn").textContent=t("add");
+  $("#cSent").nextElementSibling.textContent=t("sent");
+  if(!$("#send").classList.contains("sending")) $("#send").textContent=t("send");
+  $(".eyebrow").textContent=t("justSent");
+  if(!recentItems.length){$("#recent").innerHTML='<div class="hint">'+t("nothing")+'</div>';}
+  fillManagers(); fillRanches();
+}
+
+fillManagers();
+fillRanches();
+managerSel.addEventListener("change", ()=>{ fillRanches(); validate(); });
+$("#langBtn").addEventListener("click", ()=>{ LANG = LANG==="en"?"es":"en"; applyLang(); });
 
 if(SUPABASE_URL.includes("YOUR")||SUPABASE_KEY.includes("YOUR")){
   const w=$("#cfgWarn");w.style.display="block";w.textContent="Not connected: Supabase URL/key still placeholder.";
@@ -217,7 +287,7 @@ $("#send").onclick=async()=>{
   for(let i=0;i<pending.length;i++){
     const it=pending[i];
     it.status="sending"; renderFiles();
-    btn.innerHTML=`<span class="spin"></span>Sending ${i+1} of ${pending.length}\u2026`;
+    btn.innerHTML=`<span class="spin"></span>${t("sending")} ${i+1}/${pending.length}\u2026`;
     try{
       await uploadAndInsert(it, manager, ranch);
       it.status="sent"; ok++;
@@ -232,9 +302,9 @@ $("#send").onclick=async()=>{
   // clear successfully sent items from the visible queue
   queue = queue.filter(it=>it.status!=="sent");
   renderFiles();
-  btn.classList.remove("sending"); btn.innerHTML="Send them in"; validate();
-  if(fail===0) toast(`Sent ${ok} ${ok===1?"tag":"tags"} \u2713`);
-  else toast(`${ok} sent, ${fail} failed \u2014 see message`, true);
+  btn.classList.remove("sending"); btn.innerHTML=t("send"); validate();
+  if(fail===0) toast(`${t("ok")} ${ok} \u2713`);
+  else toast(`${ok} \u2713, ${fail} ${t("fail")}`, true);
 };
 
 async function uploadAndInsert(it, manager, ranch){
