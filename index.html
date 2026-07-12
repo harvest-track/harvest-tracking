@@ -37,7 +37,7 @@
   .stat b.pop{display:inline-block;animation:pop .35s ease}
   .field{margin-bottom:20px}
   label{display:block;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 8px}
-  label .opt{font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-soft);opacity:.85}
+  label .opt{display:inline-block;font-weight:700;text-transform:none;letter-spacing:.02em;font-size:11px;color:var(--gold-dk);background:#f5ecd4;border:1px solid #e3d3a6;border-radius:999px;padding:2px 9px;margin-left:6px;vertical-align:1px}
   select{width:100%;min-height:50px;padding:13px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:16px;font-family:inherit;color:var(--ink);background:#fff;appearance:none;-webkit-appearance:none}
   select{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%233f463d' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
   select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(31,81,48,.16)}
@@ -116,6 +116,16 @@
     </div>
 
     <div class="field">
+      <label for="block" id="lblBlock">Block <span class="opt">Optional if written on tag</span></label>
+      <select id="block" disabled><option value="">Select a block</option></select>
+    </div>
+
+    <div class="field">
+      <label for="variety" id="lblVariety">Variety <span class="opt">Optional if written on tag</span></label>
+      <select id="variety" disabled><option value="">Select a variety</option></select>
+    </div>
+
+    <div class="field">
       <label id="lblPhoto">Tag photo</label>
       <button class="photo-btn" id="pickBtn" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
@@ -151,20 +161,81 @@ const FM_RANCHES = {
   "Amalia":  ["GLF11","GLF13","GLF14","GLF16","GLF20","GLF22"],
   "Gerardo": ["GLF19","GLF24","GLF25","GLF26"],
   "Armando": ["GLF7","GLF23","GLF27"],
-  "Ramon":   ["GLF8"],
   "Dave":    ["GLF9"]
 };
 // All active ranches (used for the "Other" catch-all).
 const ALL_ACTIVE = ["GLF1","GLF3","GLF4","GLF5","GLF6","GLF7","GLF8","GLF9","GLF10","GLF11","GLF13","GLF14","GLF16","GLF17","GLF18","GLF19","GLF20","GLF22","GLF23","GLF24","GLF25","GLF26","GLF27"];
 
+// Block -> varieties, per ranch. Ranches absent here (e.g. GLF8) get disabled block/variety selects.
+const BLOCK_DATA = {
+  "GLF1":{"GLF1-1":["Nonpareil","Monterey","Wood Colony"]},
+  "GLF3":{"GLF3-NW-Test":["Nonpareil","Aldrich","Monterey","Wood Colony"],
+          "GLF3-NW-Control":["Nonpareil","Aldrich","Monterey","Wood Colony"],
+          "GLF3-PP":["Nonpareil","Aldrich","Monterey","Wood Colony"],
+          "GLF3-D":["Nonpareil","Aldrich","Monterey","Wood Colony"],
+          "GLF3-E":["Nonpareil","Aldrich","Monterey","Wood Colony"],
+          "GLF3-SW":["Nonpareil","Aldrich","Monterey","Wood Colony"]},
+  "GLF4":{"GLF4-GHE":["Carmel"],"GLF4-GHW":["Monterey"],
+          "GLF4-B14":["Butte","Padre"],"GLF4-B5":["Butte","Padre"],
+          "GLF4-B69-Control":["Butte","Padre"],"GLF4-B69-Test":["Butte","Padre"]},
+  "GLF5":{"GLF5-1-Control #1":["Independence"],"GLF5-1-Test #1":["Independence"],
+          "GLF5-1-Control #2":["Independence"],"GLF5-1-Test #2":["Independence"],
+          "GLF5-2-Control #3":["Independence"],"GLF5-2-Control #4":["Independence"],
+          "GLF5-2-Treated #3":["Independence"],"GLF5-2-Treated #4":["Independence"],
+          "GLF5-3":["Nonpareil","Monterey"]},
+  "GLF6":{"GLF6-1":["Independence"]},
+  "GLF7":{"GLF7-1":["Nonpareil","Aldrich","Wood Colony"],
+          "GLF7-2":["Nonpareil","Monterey","Wood Colony"],
+          "GLF7-3":["Nonpareil","Monterey","Wood Colony"],
+          "GLF7-4":["Nonpareil","Monterey","Wood Colony"],
+          "GLF7-5":["Nonpareil","Monterey","Wood Colony"],
+          "GLF7-6":["Nonpareil","Supareil"],
+          "GLF7-7":["Nonpareil","Carmel","Monterey"],
+          "GLF7-8":["Nonpareil","Wood Colony"],
+          "GLF7-10":["Nonpareil","Fritz","Monterey"],
+          "GLF7-11":["Nonpareil","Fritz","Monterey"]},
+  "GLF9":{"GLF9-1A":["Kerman","Golden Hills","Lost Hills"]},
+  "GLF10":{"GLF10-NW":["Nonpareil","Independence","Monterey"],
+           "GLF10-SW":["Nonpareil","Independence","Monterey"],
+           "GLF10-NE":["Nonpareil","Independence","Monterey"],
+           "GLF10-SE":["Nonpareil","Independence","Monterey"]},
+  "GLF11":{"GLF11-N":["Kerman"],"GLF11-S":["Kerman"]},
+  "GLF13":{"GLF13-AN":["Nonpareil","Monterey"],"GLF13-AS":["Nonpareil","Monterey"],"GLF13-P":["Golden Hills"]},
+  "GLF14":{"GLF14-E":["Independence"],"GLF14-W":["Independence"]},
+  "GLF16":{"GLF16-1":["Kerman"],"GLF16-2":["Kerman"],"GLF16-3":["Kerman"]},
+  "GLF17":{"GLF17-1":["Independence"],"GLF17-2":["Nonpareil","Monterey"],
+           "GLF17-7":["Independence"],
+           "GLF17-8":["Independence","Liberty","Yorizane"],
+           "GLF17-9-Control":["Nonpareil","Aldrich","Monterey"],
+           "GLF17-9-Test":["Nonpareil","Aldrich","Monterey"],
+           "GLF17-S":["Independence"]},
+  "GLF18":{"GLF18-3":["Nonpareil","Carmel","Monterey"],"GLF18-4":["Butte","Padre"],
+           "GLF18-5":["Nonpareil","Aldrich"],"GLF18-6":["Independence"],
+           "GLF18-10-Control":["Nonpareil","Monterey","Wood Colony"],
+           "GLF18-10-Treated":["Nonpareil","Monterey","Wood Colony"]},
+  "GLF19":{"GLF19-1":["Nonpareil","Monterey"]},
+  "GLF20":{"GLF20-E":["Golden Hills"],"GLF20-W":["Golden Hills"]},
+  "GLF22":{"GLF22-1":["Golden Hills"],"GLF22-2":["Golden Hills"]},
+  "GLF23":{"GLF23-5":["Nonpareil","Monterey","Wood Colony"]},
+  "GLF24":{"GLF24-1":["Nonpareil","Aldrich","Monterey"]},
+  "GLF25":{"GLF25-A":["Nonpareil","Monterey"],"GLF25-B":["Nonpareil","Independence","Monterey"]},
+  "GLF26":{"GLF26-1":["Nonpareil","Monterey"],"GLF26-2":["Nonpareil","Monterey"],
+           "GLF26-3":["Nonpareil","Monterey"],"GLF26-4":["Nonpareil","Monterey"]},
+  "GLF27":{"GLF27-1":["Nonpareil","Carmel","Monterey"]}
+};
+
 const I18N = {
   en:{title:"Field Tag Capture",sub:"Photograph the tag and send it in.",
       name:"Farm manager name",selName:"Select farm manager",ranch:"Ranch / Rancho",selRanch:"Select a ranch",
+      block:"Block",selBlock:"Select a block",variety:"Variety",selVariety:"Select a variety",
+      optTag:"Optional if written on tag",noBlocks:"No blocks listed",
       photo:"Tag photo",add:"Add photo",addSub:"Photos or PDFs",sent:"sent this session",send:"Send it in",
       justSent:"Just sent",nothing:"Nothing yet this session.",other:"Other",lang:"Español",
       sending:"Sending",ok:"Sent",fail:"failed — see message",pickName:"Pick your name first"},
   es:{title:"Registro de Etiquetas",sub:"Tome una foto de la etiqueta y envíela.",
       name:"Nombre del jefe de rancho",selName:"Seleccione el jefe de rancho",ranch:"Rancho",selRanch:"Seleccione un rancho",
+      block:"Bloque",selBlock:"Seleccione un bloque",variety:"Variedad",selVariety:"Seleccione una variedad",
+      optTag:"Opcional si está escrito en la etiqueta",noBlocks:"Sin bloques listados",
       photo:"Foto de la etiqueta",add:"Agregar foto",addSub:"Fotos o PDF",sent:"enviadas en esta sesión",send:"Enviar",
       justSent:"Recién enviadas",nothing:"Nada aún en esta sesión.",other:"Otro",lang:"English",
       sending:"Enviando",ok:"Enviado",fail:"fallaron — vea el mensaje",pickName:"Seleccione su nombre primero"}
@@ -201,6 +272,40 @@ function fillRanches(){
   list.forEach(r=>{const o=document.createElement("option");o.textContent=r;ranchSel.appendChild(o);});
   if(cur && list.includes(cur)) ranchSel.value=cur;
   ranchSel.disabled = !mgr;
+  fillBlocks();
+}
+
+const blockSel=$("#block");
+const varietySel=$("#variety");
+
+function fillBlocks(){
+  const ranch=ranchSel.value;
+  const cur=blockSel.value;
+  const blocks = (ranch && BLOCK_DATA[ranch]) ? Object.keys(BLOCK_DATA[ranch]) : [];
+  blockSel.innerHTML="";
+  const first=document.createElement("option");first.value="";
+  first.textContent = (ranch && !blocks.length) ? t("noBlocks") : t("selBlock");
+  blockSel.appendChild(first);
+  blocks.forEach(b=>{const o=document.createElement("option");o.textContent=b;blockSel.appendChild(o);});
+  if(cur && blocks.includes(cur)) blockSel.value=cur;
+  blockSel.disabled = !blocks.length;
+  fillVarieties();
+}
+
+function fillVarieties(){
+  const ranch=ranchSel.value, block=blockSel.value;
+  const cur=varietySel.value;
+  let vars=[];
+  if(ranch && BLOCK_DATA[ranch]){
+    if(block && BLOCK_DATA[ranch][block]) vars=BLOCK_DATA[ranch][block];
+    else vars=[...new Set(Object.values(BLOCK_DATA[ranch]).flat())]; // ranch-wide until a block is picked
+  }
+  varietySel.innerHTML="";
+  const first=document.createElement("option");first.value="";first.textContent=t("selVariety");
+  varietySel.appendChild(first);
+  vars.forEach(v=>{const o=document.createElement("option");o.textContent=v;varietySel.appendChild(o);});
+  if(cur && vars.includes(cur)) varietySel.value=cur;
+  varietySel.disabled = !vars.length;
 }
 
 function applyLang(){
@@ -209,6 +314,8 @@ function applyLang(){
   $("#hSub").textContent=t("sub");
   $("#lblManager").textContent=t("name");
   $("#lblRanch").textContent=t("ranch");
+  $("#lblBlock").innerHTML=t("block")+' <span class="opt">'+t("optTag")+'</span>';
+  $("#lblVariety").innerHTML=t("variety")+' <span class="opt">'+t("optTag")+'</span>';
   $("#langBtn").textContent=t("lang");
   // photo label + button + stat + submit + recent heading
   if($("#lblPhoto")) $("#lblPhoto").textContent=t("photo");
@@ -224,6 +331,8 @@ function applyLang(){
 fillManagers();
 fillRanches();
 managerSel.addEventListener("change", ()=>{ fillRanches(); validate(); });
+ranchSel.addEventListener("change", fillBlocks);
+blockSel.addEventListener("change", fillVarieties);
 $("#langBtn").addEventListener("click", ()=>{ LANG = LANG==="en"?"es":"en"; applyLang(); });
 
 if(SUPABASE_URL.includes("YOUR")||SUPABASE_KEY.includes("YOUR")){
@@ -301,6 +410,7 @@ $("#send").onclick=async()=>{
   if($("#send").disabled) return;
   hideErr();
   const manager=$("#manager").value, ranch=$("#ranch").value;
+  const block=$("#block").value||null, variety=$("#variety").value||null;
   const btn=$("#send"); btn.disabled=true; btn.classList.add("sending");
   const pending = queue.filter(it=>it.status==="queued");
   let ok=0, fail=0;
@@ -309,7 +419,7 @@ $("#send").onclick=async()=>{
     it.status="sending"; renderFiles();
     btn.innerHTML=`<span class="spin"></span>${t("sending")} ${i+1}/${pending.length}\u2026`;
     try{
-      await uploadAndInsert(it, manager, ranch);
+      await uploadAndInsert(it, manager, ranch, block, variety);
       it.status="sent"; ok++;
       sentCount++;
       const c=$("#cSent"); c.textContent=sentCount;
@@ -329,7 +439,7 @@ $("#send").onclick=async()=>{
   else toast(`${ok} \u2713, ${fail} ${t("fail")}`, true);
 };
 
-async function uploadAndInsert(it, manager, ranch){
+async function uploadAndInsert(it, manager, ranch, block, variety){
   const path = ranch+"/"+it.id+"."+it.ext;
   const up = await fetch(SUPABASE_URL+"/storage/v1/object/"+BUCKET+"/"+path,{
     method:"POST",
@@ -341,7 +451,7 @@ async function uploadAndInsert(it, manager, ranch){
   const ins = await fetch(SUPABASE_URL+"/rest/v1/"+TABLE,{
     method:"POST",
     headers:{ "Authorization":"Bearer "+SUPABASE_KEY, "apikey":SUPABASE_KEY, "Content-Type":"application/json", "Prefer":"return=minimal" },
-    body: JSON.stringify({ manager, ranch, image_url })
+    body: JSON.stringify({ manager, ranch, block, variety, image_url })
   });
   if(!ins.ok) throw new Error("Row save failed ("+ins.status+"): "+(await ins.text()));
 }
