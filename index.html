@@ -38,7 +38,9 @@
   .field{margin-bottom:20px}
   label{display:block;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 8px}
   label .opt{display:inline-block;font-weight:700;text-transform:none;letter-spacing:.02em;font-size:11px;color:var(--gold-dk);background:#f5ecd4;border:1px solid #e3d3a6;border-radius:999px;padding:2px 9px;margin-left:6px;vertical-align:1px}
-  select{width:100%;min-height:50px;padding:13px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:16px;font-family:inherit;color:var(--ink);background:#fff;appearance:none;-webkit-appearance:none}
+  select,input[type="text"]{width:100%;min-height:50px;padding:13px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:16px;font-family:inherit;color:var(--ink);background:#fff;appearance:none;-webkit-appearance:none}
+  input[type="text"]::placeholder{color:#9aa295}
+  input[type="text"]:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(31,81,48,.16)}
   select{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%233f463d' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
   select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(31,81,48,.16)}
   select:disabled{background-color:#f0f2ec;color:var(--ink-soft)}
@@ -114,6 +116,11 @@
       <label for="ranch" id="lblRanch">Ranch / Rancho</label>
       <select id="ranch"><option value="">Select a ranch</option></select>
     </div>
+    <div class="field">
+      <label for="tagNum" id="lblTagNum">Tag number <span class="opt">Optional if written on tag</span></label>
+      <input type="text" id="tagNum" placeholder="e.g. 4821" autocomplete="off" autocapitalize="characters" enterkeyhint="done">
+    </div>
+
 
     <div class="field">
       <label for="block" id="lblBlock">Block <span class="opt">Optional if written on tag</span></label>
@@ -124,6 +131,7 @@
       <label for="variety" id="lblVariety">Variety <span class="opt">Optional if written on tag</span></label>
       <select id="variety" disabled><option value="">Select a variety</option></select>
     </div>
+
 
     <div class="field">
       <label id="lblPhoto">Tag photo</label>
@@ -229,6 +237,7 @@ const I18N = {
       name:"Farm manager name",selName:"Select farm manager",ranch:"Ranch / Rancho",selRanch:"Select a ranch",
       block:"Block",selBlock:"Select a block",variety:"Variety",selVariety:"Select a variety",
       optTag:"Optional if written on tag",noBlocks:"No blocks listed",
+      tagNum:"Tag number",tagNumPh:"e.g. 4821",
       photo:"Tag photo",add:"Add photo",addSub:"Photos or PDFs",sent:"sent this session",send:"Send it in",
       justSent:"Just sent",nothing:"Nothing yet this session.",other:"Other",lang:"Español",
       sending:"Sending",ok:"Sent",fail:"failed — see message",pickName:"Pick your name first"},
@@ -236,6 +245,7 @@ const I18N = {
       name:"Nombre del jefe de rancho",selName:"Seleccione el jefe de rancho",ranch:"Rancho",selRanch:"Seleccione un rancho",
       block:"Bloque",selBlock:"Seleccione un bloque",variety:"Variedad",selVariety:"Seleccione una variedad",
       optTag:"Opcional si está escrito en la etiqueta",noBlocks:"Sin bloques listados",
+      tagNum:"Número de etiqueta",tagNumPh:"p. ej. 4821",
       photo:"Foto de la etiqueta",add:"Agregar foto",addSub:"Fotos o PDF",sent:"enviadas en esta sesión",send:"Enviar",
       justSent:"Recién enviadas",nothing:"Nada aún en esta sesión.",other:"Otro",lang:"English",
       sending:"Enviando",ok:"Enviado",fail:"fallaron — vea el mensaje",pickName:"Seleccione su nombre primero"}
@@ -316,6 +326,8 @@ function applyLang(){
   $("#lblRanch").textContent=t("ranch");
   $("#lblBlock").innerHTML=t("block")+' <span class="opt">'+t("optTag")+'</span>';
   $("#lblVariety").innerHTML=t("variety")+' <span class="opt">'+t("optTag")+'</span>';
+  $("#lblTagNum").innerHTML=t("tagNum")+' <span class="opt">'+t("optTag")+'</span>';
+  $("#tagNum").placeholder=t("tagNumPh");
   $("#langBtn").textContent=t("lang");
   // photo label + button + stat + submit + recent heading
   if($("#lblPhoto")) $("#lblPhoto").textContent=t("photo");
@@ -411,6 +423,7 @@ $("#send").onclick=async()=>{
   hideErr();
   const manager=$("#manager").value, ranch=$("#ranch").value;
   const block=$("#block").value||null, variety=$("#variety").value||null;
+  const tag_number=$("#tagNum").value.trim()||null;
   const btn=$("#send"); btn.disabled=true; btn.classList.add("sending");
   const pending = queue.filter(it=>it.status==="queued");
   let ok=0, fail=0;
@@ -419,7 +432,7 @@ $("#send").onclick=async()=>{
     it.status="sending"; renderFiles();
     btn.innerHTML=`<span class="spin"></span>${t("sending")} ${i+1}/${pending.length}\u2026`;
     try{
-      await uploadAndInsert(it, manager, ranch, block, variety);
+      await uploadAndInsert(it, manager, ranch, block, variety, tag_number);
       it.status="sent"; ok++;
       sentCount++;
       const c=$("#cSent"); c.textContent=sentCount;
@@ -434,12 +447,13 @@ $("#send").onclick=async()=>{
   // clear successfully sent items from the visible queue
   queue = queue.filter(it=>it.status!=="sent");
   renderFiles();
+  if(ok>0) $("#tagNum").value="";
   btn.classList.remove("sending"); btn.innerHTML=t("send"); validate();
   if(fail===0) toast(`${t("ok")} ${ok} \u2713`);
   else toast(`${ok} \u2713, ${fail} ${t("fail")}`, true);
 };
 
-async function uploadAndInsert(it, manager, ranch, block, variety){
+async function uploadAndInsert(it, manager, ranch, block, variety, tag_number){
   const path = ranch+"/"+it.id+"."+it.ext;
   const up = await fetch(SUPABASE_URL+"/storage/v1/object/"+BUCKET+"/"+path,{
     method:"POST",
@@ -451,7 +465,7 @@ async function uploadAndInsert(it, manager, ranch, block, variety){
   const ins = await fetch(SUPABASE_URL+"/rest/v1/"+TABLE,{
     method:"POST",
     headers:{ "Authorization":"Bearer "+SUPABASE_KEY, "apikey":SUPABASE_KEY, "Content-Type":"application/json", "Prefer":"return=minimal" },
-    body: JSON.stringify({ manager, ranch, block, variety, image_url })
+    body: JSON.stringify({ manager, ranch, block, variety, tag_number, image_url })
   });
   if(!ins.ok) throw new Error("Row save failed ("+ins.status+"): "+(await ins.text()));
 }
