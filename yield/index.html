@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yield Assumption Using Field Weights Turnout</title>
+<style>
+  :root{
+    --bg:#f5f5f7;
+    --card:#ffffff;
+    --text:#1d1d1f;
+    --secondary:#86868b;
+    --hairline:rgba(0,0,0,.08);
+    --hairline-soft:rgba(0,0,0,.05);
+    --green:#34c759;
+    --amber:#ff9f0a;
+    --red:#ff3b30;
+    --blue:#0071e3;
+    --fill:#f5f5f7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:14px;
+    -webkit-font-smoothing:antialiased;
+    padding:48px 24px 96px;
+  }
+  .wrap{max-width:1140px;margin:0 auto}
+
+  .eyebrow{
+    font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--secondary);margin-bottom:6px;
+  }
+  h1{font-size:34px;font-weight:700;letter-spacing:-.025em;line-height:1.1}
+  .sub{color:var(--secondary);font-size:15px;margin-top:8px;max-width:560px}
+
+  .summary{
+    display:flex;flex-wrap:wrap;
+    background:var(--card);
+    border-radius:18px;
+    box-shadow:0 1px 2px rgba(0,0,0,.04),0 4px 24px rgba(0,0,0,.04);
+    margin:28px 0 24px;
+    overflow:hidden;
+  }
+  .stat{
+    flex:1 1 160px;min-width:150px;
+    padding:18px 22px 16px;
+    border-right:1px solid var(--hairline-soft);
+  }
+  .stat:last-child{border-right:none}
+  .stat .k{font-size:12px;font-weight:500;color:var(--secondary)}
+  .stat .v{
+    font-size:24px;font-weight:600;letter-spacing:-.02em;margin-top:4px;
+    font-variant-numeric:tabular-nums;
+  }
+  .stat .v small{font-size:14px;font-weight:400;color:var(--secondary)}
+  .meter{
+    height:4px;background:rgba(0,0,0,.06);border-radius:2px;
+    margin-top:12px;overflow:hidden;
+  }
+  .meter i{
+    display:block;height:100%;width:0;border-radius:2px;
+    background:var(--green);transition:width .5s cubic-bezier(.25,.1,.25,1);
+  }
+
+  .tools{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+  input[type="search"]{
+    font:inherit;font-size:14px;
+    padding:8px 14px;border:none;border-radius:10px;
+    background:rgba(0,0,0,.05);color:var(--text);width:240px;
+    outline:none;
+  }
+  input[type="search"]:focus{box-shadow:0 0 0 3px rgba(0,113,227,.3)}
+  .link{
+    font:inherit;font-size:14px;color:var(--blue);
+    background:none;border:none;cursor:pointer;padding:4px 2px;
+  }
+  .link:hover{text-decoration:underline}
+  .link:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+  .spacer{flex:1}
+  .savenote{font-size:12px;color:var(--secondary)}
+
+  .card{
+    background:var(--card);
+    border-radius:18px;
+    box-shadow:0 1px 2px rgba(0,0,0,.04),0 4px 24px rgba(0,0,0,.04);
+    overflow-x:auto;
+  }
+  table{border-collapse:collapse;width:100%;min-width:980px}
+  thead th{
+    font-size:12px;font-weight:500;color:var(--secondary);
+    padding:14px 12px 10px;text-align:right;white-space:nowrap;
+    border-bottom:1px solid var(--hairline);
+    position:sticky;top:0;background:var(--card);z-index:2;
+  }
+  thead th:first-child{text-align:left;padding-left:20px}
+  thead th.c{text-align:center}
+
+  tr.farm td{padding:0;border-top:1px solid var(--hairline-soft)}
+  tr.farm:first-child td{border-top:none}
+  .band{
+    all:unset;display:flex;align-items:center;gap:10px;
+    width:100%;padding:13px 20px;box-sizing:border-box;cursor:pointer;
+  }
+  .band:hover{background:rgba(0,0,0,.02)}
+  .band:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+  .chev{
+    flex:none;width:8px;height:8px;
+    border-right:1.5px solid var(--secondary);border-bottom:1.5px solid var(--secondary);
+    transform:rotate(-45deg);transition:transform .18s ease;margin-right:2px;
+  }
+  tr.farm.open .chev{transform:rotate(45deg)}
+  .fname{font-size:15px;font-weight:600;letter-spacing:-.01em}
+  .fright{margin-left:auto;display:flex;gap:20px;align-items:baseline}
+  .fdone{font-size:12px;color:var(--secondary);font-variant-numeric:tabular-nums}
+  .flbs{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+  .flbs small{font-weight:400;color:var(--secondary)}
+
+  tr.row td{
+    padding:8px 12px;text-align:right;white-space:nowrap;
+    font-variant-numeric:tabular-nums;
+    border-top:1px solid var(--hairline-soft);
+  }
+  tr.row td.var{text-align:left;padding-left:42px}
+  tr.row.hide{display:none}
+  td.calcv{font-weight:500}
+
+  td.st{text-align:center}
+  .dot{
+    display:inline-block;width:16px;height:16px;border-radius:50%;
+    background:var(--red);cursor:pointer;vertical-align:middle;
+    transition:background .12s;
+  }
+  .dot:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  .dot[data-state="1"]{background:var(--amber)}
+  .dot[data-state="2"]{background:var(--green)}
+
+  td input{
+    font:inherit;font-size:14px;text-align:right;
+    width:96px;border:none;border-radius:8px;background:transparent;
+    color:var(--text);padding:5px 8px;font-variant-numeric:tabular-nums;
+    outline:none;
+  }
+  td input.pct{width:64px}
+  td input::placeholder{color:#c7c7cc}
+  td input:hover{background:var(--fill)}
+  td input:focus{background:var(--fill);box-shadow:0 0 0 3px rgba(0,113,227,.25)}
+  .neg{color:var(--red)}
+
+  tfoot td{
+    padding:14px 12px;text-align:right;font-weight:600;
+    border-top:1px solid var(--hairline);
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  tfoot td:first-child{text-align:left;padding-left:20px}
+
+  .note{font-size:12px;color:var(--secondary);margin-top:14px;line-height:1.6}
+
+  @media (max-width:640px){
+    body{padding:24px 12px 60px}
+    h1{font-size:26px}
+    input[type="search"]{width:100%}
+  }
+  @media (prefers-reduced-motion:reduce){.chev,.meter i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Crop Year 2026</div>
+  <h1>Yield Assumption Using Field&nbsp;Weights&nbsp;Turnout</h1>
+  <div class="sub">Track pickup and processor tickets by block, and roll field weights into forecasted pounds.</div>
+
+  <div class="summary">
+    <div class="stat">
+      <div class="k">Pickup</div>
+      <div class="v" id="sPick">0<small> / 66</small></div>
+      <div class="meter"><i id="mPick"></i></div>
+    </div>
+    <div class="stat"><div class="k">Field weight · lbs</div><div class="v" id="sFW">—</div></div>
+    <div class="stat"><div class="k">Forecast · lbs</div><div class="v" id="sFcst">—</div></div>
+    <div class="stat"><div class="k">Final · lbs</div><div class="v" id="sFin">—</div></div>
+  </div>
+
+  <div class="tools">
+    <input type="search" id="filter" placeholder="Search" aria-label="Filter rows">
+    <button class="link" id="expandAll">Expand all</button>
+    <button class="link" id="collapseAll">Collapse all</button>
+    <div class="spacer"></div>
+    <button class="link" id="exportBtn">Export CSV</button>
+    <button class="link" id="resetBtn">Reset</button>
+    <span class="savenote" id="savenote"></span>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Farm</th>
+          <th class="c">All Pickups?</th>
+          <th class="c">All Tickets Submitted?</th>
+          <th>Field Weight</th>
+          <th>Var vs '25</th>
+          <th>Assumption</th>
+          <th>Actual Turnout</th>
+          <th>Forecast</th>
+          <th>Final</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3">Total</td>
+          <td id="tFW">—</td>
+          <td></td><td></td><td></td>
+          <td id="tFcst">—</td>
+          <td id="tFin">—</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <p class="note">Field weights and turnout assumptions are pre-filled from 2025 as a starting point — overwrite as 2026 numbers come in. Forecast = field weight × assumption. Final = field weight × actual turnout. Dots cycle red → amber → green. Saves in this browser.</p>
+
+</div>
+
+<script>
+/* farm, variety, 2025 actual turnout %, 2025 field weight (null = no prior history) */
+const ROWS = [
+  ["GLF1","Nonpareil",15.72,339840],["GLF1","Monterey",19.56,125960],["GLF1","Wood Colony",18.08,156820],
+  ["GLF3","Nonpareil",20.39,329120],["GLF3","Aldrich",19.73,870500],["GLF3","Monterey",18.99,507040],["GLF3","Wood Colony",23.56,490900],
+  ["GLF4","Carmel",29.18,299500],["GLF4","Monterey",21.35,1043435],["GLF4","Butte",17.76,303920],["GLF4","Padre",17.58,274760],
+  ["GLF5","Independence",26.75,142380],["GLF5","Nonpareil",26.81,113000],["GLF5","Monterey",26.73,2456260],
+  ["GLF6","Independence",20.23,126720],
+  ["GLF7","Nonpareil",16.51,159300],["GLF7","Monterey",22.13,333380],["GLF7","Wood Colony",19.71,625540],["GLF7","Fritz",25.26,584800],["GLF7","Aldrich",22.68,68980],["GLF7","Supareil",28.67,138960],["GLF7","Carmel",21.30,86700],
+  ["GLF9","Kerman",21.80,772160],["GLF9","Golden Hills",15.54,297960],["GLF9","Lost Hills",18.83,435430],
+  ["GLF10","Nonpareil",21.31,395100],["GLF10","Independence",23.38,448320],["GLF10","Monterey",26.89,482780],
+  ["GLF11","Kerman",22.40,617100],
+  ["GLF13","Nonpareil",20.57,508555],["GLF13","Monterey",22.78,250919],["GLF13","Golden Hills",20.81,322935],
+  ["GLF14","Independence",25.24,288239],
+  ["GLF16","Kerman",25.18,1300144],
+  ["GLF17","Nonpareil",25.69,972377],["GLF17","Aldrich",22.74,1594288],["GLF17","Monterey",27.77,1634229],["GLF17","Independence",21.23,412100],["GLF17","Liberty",null,null],["GLF17","Yorizane",null,null],
+  ["GLF18","Nonpareil",23.40,145560],["GLF18","Carmel",23.20,213380],["GLF18","Monterey",19.33,2897147],["GLF18","Butte",24.10,592675],["GLF18","Padre",23.61,940170],["GLF18","Aldrich",20.03,777140],["GLF18","Independence",18.36,735980],["GLF18","Wood Colony",19.14,2032820],
+  ["GLF19","Nonpareil",21.12,1517140],["GLF19","Monterey",26.57,2620320],
+  ["GLF20","Golden Hills",9.75,921940],
+  ["GLF22","Golden Hills",null,0],
+  ["GLF23","Nonpareil",24.77,1968600],["GLF23","Monterey",16.24,1465320],["GLF23","Wood Colony",16.65,2715400],
+  ["GLF24","Nonpareil",22.28,901100],["GLF24","Aldrich",21.82,84620],["GLF24","Monterey",17.11,570580],
+  ["GLF25","Nonpareil",23.87,586500],["GLF25","Monterey",21.97,1024600],["GLF25","Independence",6.69,193800],
+  ["GLF26","Nonpareil",null,null],["GLF26","Monterey",null,null],
+  ["GLF27","Nonpareil",null,null],["GLF27","Carmel",20.82,1003380],["GLF27","Monterey",39.36,549800]
+];
+
+const STORE = "glf-fw-2026-v3";
+let state = {};
+
+function loadState(){
+  try{ const raw = localStorage.getItem(STORE); if(raw) state = JSON.parse(raw); }
+  catch(e){ state = {}; }
+}
+function saveState(){
+  try{
+    localStorage.setItem(STORE, JSON.stringify(state));
+    savenote.textContent = "Saved";
+    clearTimeout(saveState._t);
+    saveState._t = setTimeout(()=>savenote.textContent="", 1500);
+  }catch(e){
+    savenote.textContent = "Storage unavailable";
+  }
+}
+function key(f,v){ return f+"|"+v; }
+function rowDef(f,v){ return ROWS.find(r=>r[0]===f && r[1]===v); }
+function getRow(f,v){
+  const k = key(f,v);
+  if(!state[k]){
+    const [,,to25,fw25] = rowDef(f,v);
+    state[k] = {pickup:0,tickets:0,fw:(fw25!=null?fw25:""),varAc:"",assump:(to25!=null?to25:""),actual:""};
+  }
+  return state[k];
+}
+
+const fmt0 = new Intl.NumberFormat("en-US",{maximumFractionDigits:0});
+function parseNum(s){
+  if(s === "" || s == null) return null;
+  const n = parseFloat(String(s).replace(/[,%\s]/g,""));
+  return isNaN(n) ? null : n;
+}
+const fmtLbs = n => n == null ? "—" : fmt0.format(Math.round(n));
+function calc(r){
+  const fw = parseNum(r.fw), a = parseNum(r.assump), act = parseNum(r.actual);
+  return { fw,
+    fcst:(fw!=null && a!=null)? fw*a/100 : null,
+    fin:(fw!=null && act!=null)? fw*act/100 : null };
+}
+
+function build(){
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
+  [...new Set(ROWS.map(r=>r[0]))].forEach(farm => {
+    const ftr = document.createElement("tr");
+    ftr.className = "farm";
+    ftr.dataset.farm = farm;
+    ftr.innerHTML = `<td colspan="9">
+      <button class="band" aria-expanded="false" aria-label="Toggle ${farm}">
+        <span class="chev" aria-hidden="true"></span>
+        <span class="fname">${farm}</span>
+        <span class="fright">
+          <span class="fdone" data-fdone="${farm}"></span>
+          <span class="flbs" data-flbs="${farm}"></span>
+        </span>
+      </button></td>`;
+    tbody.appendChild(ftr);
+
+    ROWS.filter(r=>r[0]===farm).forEach(([f,v]) => {
+      const r = getRow(f,v);
+      const tr = document.createElement("tr");
+      tr.className = "row hide";
+      tr.dataset.farm = f; tr.dataset.variety = v;
+      tr.innerHTML = `
+        <td class="var">${v}</td>
+        <td class="st"><span class="dot" role="button" tabindex="0" aria-label="Pickup, ${f} ${v}" data-field="pickup" data-state="${r.pickup}"></span></td>
+        <td class="st"><span class="dot" role="button" tabindex="0" aria-label="Tickets, ${f} ${v}" data-field="tickets" data-state="${r.tickets}"></span></td>
+        <td><input inputmode="decimal" data-field="fw" value="${r.fw!==""? fmt0.format(r.fw):""}" placeholder="lbs" aria-label="Field weight, ${f} ${v}"></td>
+        <td><input inputmode="decimal" class="pct varac" data-field="varAc" value="${r.varAc!==""? r.varAc:""}" placeholder="%" aria-label="Variance vs 2025, ${f} ${v}"></td>
+        <td><input inputmode="decimal" class="pct" data-field="assump" value="${r.assump!==""? r.assump+"%":""}" placeholder="%" aria-label="Assumption, ${f} ${v}"></td>
+        <td><input inputmode="decimal" class="pct" data-field="actual" value="${r.actual!==""? r.actual:""}" placeholder="%" aria-label="Actual turnout, ${f} ${v}"></td>
+        <td class="calcv" data-calc="fcst">—</td>
+        <td class="calcv" data-calc="fin">—</td>`;
+      tbody.appendChild(tr);
+    });
+  });
+}
+
+function refreshRow(tr){
+  const r = getRow(tr.dataset.farm, tr.dataset.variety);
+  const c = calc(r);
+  tr.querySelector('[data-calc="fcst"]').textContent = fmtLbs(c.fcst);
+  tr.querySelector('[data-calc="fin"]').textContent = fmtLbs(c.fin);
+  const v = tr.querySelector(".varac"), vn = parseNum(r.varAc);
+  v.classList.toggle("neg", vn != null && vn < 0);
+}
+
+function refreshTotals(){
+  const n = ROWS.length;
+  let pick=0, tick=0, fw=0, fcst=0, fin=0, aFW=false, aFc=false, aFn=false;
+  const gFin={}, gDone={}, gN={};
+  ROWS.forEach(([f,v]) => {
+    const r = getRow(f,v), c = calc(r);
+    gN[f]=(gN[f]||0)+1;
+    if(r.pickup==2) pick++;
+    if(r.tickets==2) tick++;
+    if(r.pickup==2 && r.tickets==2) gDone[f]=(gDone[f]||0)+1;
+    if(c.fw!=null){fw+=c.fw;aFW=true}
+    if(c.fcst!=null){fcst+=c.fcst;aFc=true}
+    if(c.fin!=null){fin+=c.fin;aFn=true;gFin[f]=(gFin[f]||0)+c.fin}
+  });
+  sPick.innerHTML = pick+`<small> / ${n}</small>`;
+  mPick.style.width = (pick/n*100)+"%";
+  sFW.textContent = aFW? fmtLbs(fw):"—";
+  sFcst.textContent = aFc? fmtLbs(fcst):"—";
+  sFin.textContent = aFn? fmtLbs(fin):"—";
+  tFW.textContent = aFW? fmtLbs(fw):"—";
+  tFcst.textContent = aFc? fmtLbs(fcst):"—";
+  tFin.textContent = aFn? fmtLbs(fin):"—";
+  document.querySelectorAll("[data-fdone]").forEach(el=>{
+    const f = el.dataset.fdone;
+    el.textContent = (gDone[f]||0)+"/"+gN[f]+" done";
+  });
+  document.querySelectorAll("[data-flbs]").forEach(el=>{
+    const f = el.dataset.flbs;
+    el.innerHTML = gFin[f]!=null ? fmtLbs(gFin[f])+" <small>lbs</small>" : "";
+  });
+}
+function refreshAll(){
+  document.querySelectorAll("tr.row").forEach(refreshRow);
+  refreshTotals();
+}
+
+/* expand / collapse */
+function setOpen(ftr, open){
+  ftr.classList.toggle("open", open);
+  ftr.querySelector(".band").setAttribute("aria-expanded", open);
+  document.querySelectorAll(`tr.row[data-farm="${ftr.dataset.farm}"]`)
+    .forEach(tr => tr.classList.toggle("hide", !open || tr.dataset.filtered === "1"));
+}
+tbody.addEventListener("click", e => {
+  const band = e.target.closest(".band");
+  if(band){
+    const ftr = band.closest("tr.farm");
+    setOpen(ftr, !ftr.classList.contains("open"));
+    return;
+  }
+  const dot = e.target.closest(".dot");
+  if(dot) cycleDot(dot);
+});
+tbody.addEventListener("keydown", e => {
+  if((e.key==="Enter"||e.key===" ") && e.target.classList.contains("dot")){
+    e.preventDefault(); cycleDot(e.target);
+  }
+});
+expandAll.onclick = () => document.querySelectorAll("tr.farm").forEach(t=>setOpen(t,true));
+collapseAll.onclick = () => document.querySelectorAll("tr.farm").forEach(t=>setOpen(t,false));
+
+function cycleDot(dot){
+  const tr = dot.closest("tr");
+  const r = getRow(tr.dataset.farm, tr.dataset.variety);
+  const next = (Number(dot.dataset.state)+1)%3;
+  dot.dataset.state = next; r[dot.dataset.field] = next;
+  saveState(); refreshTotals();
+}
+
+/* inputs */
+tbody.addEventListener("input", e => {
+  if(e.target.tagName !== "INPUT") return;
+  const tr = e.target.closest("tr");
+  const r = getRow(tr.dataset.farm, tr.dataset.variety);
+  const n = parseNum(e.target.value);
+  r[e.target.dataset.field] = (n==null? "": n);
+  saveState(); refreshRow(tr); refreshTotals();
+});
+tbody.addEventListener("blur", e => {
+  if(e.target.tagName !== "INPUT") return;
+  const n = parseNum(e.target.value);
+  if(e.target.dataset.field === "fw"){
+    e.target.value = n==null? "": fmt0.format(n);
+  }else if(e.target.dataset.field === "assump"){
+    e.target.value = n==null? "": n+"%";
+  }
+}, true);
+
+/* filter */
+filter.addEventListener("input", e => {
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll("tr.row").forEach(tr=>{
+    const hit = !q || tr.dataset.farm.toLowerCase().includes(q) || tr.dataset.variety.toLowerCase().includes(q);
+    tr.dataset.filtered = hit ? "0" : "1";
+  });
+  document.querySelectorAll("tr.farm").forEach(ftr=>{
+    const f = ftr.dataset.farm;
+    const anyHit = [...document.querySelectorAll(`tr.row[data-farm="${f}"]`)].some(tr=>tr.dataset.filtered!=="1");
+    ftr.style.display = anyHit ? "" : "none";
+    if(q && anyHit) setOpen(ftr, true);
+  });
+});
+
+/* export */
+exportBtn.onclick = () => {
+  const S = v => v==null? "": v;
+  const label = s => ["Not started","In progress","Done"][s] || "Not started";
+  const lines = ['Farm,Variety,All Pickups?,All Tickets Submitted?,Field Weight,Var vs 25 per acre %,Turnout Assumption %,Actual Turnout %,Forecasted Lbs,Final Lbs'];
+  ROWS.forEach(([f,v])=>{
+    const r = getRow(f,v), c = calc(r);
+    lines.push([f,v,label(r.pickup),label(r.tickets),S(r.fw),S(r.varAc),S(r.assump),S(r.actual),
+      c.fcst==null? "": Math.round(c.fcst), c.fin==null? "": Math.round(c.fin)].join(","));
+  });
+  const blob = new Blob([lines.join("\n")], {type:"text/csv"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "yield-assumption-field-weights-2026.csv";
+  a.click(); URL.revokeObjectURL(a.href);
+};
+
+/* reset */
+resetBtn.onclick = () => {
+  if(!confirm("Clear all entries and restore 2025 starting values?")) return;
+  state = {}; saveState(); build(); refreshAll();
+};
+
+loadState();
+build();
+refreshAll();
+</script>
+</body>
+</html>
